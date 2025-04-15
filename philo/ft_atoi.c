@@ -1,33 +1,31 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   philo.h                                            :+:      :+:    :+:   */
+/*   ft_atoi.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: yjaafar <yjaafar@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/04/14 08:29:06 by yjaafar           #+#    #+#             */
-/*   Updated: 2025/04/14 10:35:35 by yjaafar          ###   ########.fr       */
+/*   Created: 2025/04/14 09:55:50 by yjaafar           #+#    #+#             */
+/*   Updated: 2025/04/14 10:34:58 by yjaafar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef PHILO_H
-# define PHILO_H
+#include "philo.h"
 
-# include <unistd.h>
-# include <pthread.h>
-# include <stdio.h>
-# include <stdlib.h>
-
-typedef	struct s_stuff
+int	ft_atoi(char *s)
 {
-	int	number_of_philosophers;
-	int	time_to_die;
-	int	time_to_eat;
-	int	time_to_sleep;
-	int	number_of_times_each_philosopher_must_eat;
-}	t_stuff;
+	long	res;
 
-int		ft_atoi(char *s);
-void	ft_exit(char err);
-
-#endif
+	if (*s)
+		ft_exit(1);
+	res = 0;
+	while (*s >= 48 && *s <= 57)
+	{
+		res = (res << 3) + (res << 1) + (*s++ & 0X0f);
+		if (res > 2147483647)
+			ft_exit(1);
+	}
+	if (*s)
+		ft_exit(1);
+	return ((int) res);
+}
