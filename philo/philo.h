@@ -6,7 +6,7 @@
 /*   By: yjaafar <yjaafar@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/14 08:29:06 by yjaafar           #+#    #+#             */
-/*   Updated: 2025/04/14 10:35:35 by yjaafar          ###   ########.fr       */
+/*   Updated: 2025/04/17 05:40:03 by yjaafar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,11 +20,13 @@
 
 typedef	struct s_stuff
 {
-	int	number_of_philosophers;
-	int	time_to_die;
-	int	time_to_eat;
-	int	time_to_sleep;
-	int	number_of_times_each_philosopher_must_eat;
+	pthread_t		*philos;
+	pthread_mutex_t	*forks;
+	int				number_of_philos;
+	int				time_to_die;
+	int				time_to_eat;
+	int				time_to_sleep;
+	int				number_of_times_each_philo_must_eat;
 }	t_stuff;
 
 int		ft_atoi(char *s);

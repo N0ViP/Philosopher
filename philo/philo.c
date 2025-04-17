@@ -6,36 +6,36 @@
 /*   By: yjaafar <yjaafar@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/14 08:28:53 by yjaafar           #+#    #+#             */
-/*   Updated: 2025/04/15 03:53:51 by yjaafar          ###   ########.fr       */
+/*   Updated: 2025/04/17 05:40:01 by yjaafar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "philo.h"
 
-void	start_sumilation(t_stuff *stuff)
+void	*start_sumilation(void *arg)
 {
-	int				i;
-	pthread_mutex_t *forks;
-	pthread_t		*philos;
+	t_stuff	*stuff = (*t_stuff) arg;
+
+	
+}
+
+void	init_sumilation(t_stuff *stuff)
+{
+	int	i;
 
 	i = 0;
-	forks = (pthread_mutex_t *) malloc(sizeof(pthread_mutex_t) 
-		* stuff.number_of_philosophers);
-	philos = (pthread_t *) malloc(sizeof(pthread_t)
-		* stuff.number_of_philosophers);
-	while (i < stuff.number_of_philosophers)
-	{
-		if (pthread_mutex_init(&forks[i++], NULL))
-		{
-			distroy_mutex(&forks, i - 1);
-			exit(1)
-		}
-	}
+	while (i < stuff->number_of_philos)
+		if (pthread_mutex_init(&(stuff->forks[i++]), NULL))
+			return (distroy_mutex(stuff->forks, i - 1), 1);
 	i = 0;
-	while (i < stuff.number_of_philosophers)
-	{
-		pthread_creat(&);
-	}
+	while (i < n_of_philos)
+		if (pthread_creat(&(stuff->philos[i++]), NULL, start_sumilation, stuff))
+			return (distroy_mutex(stuff->forks, stuff->number_of_philos), 1);
+	i = 0;
+	while (i < n_of_philos)
+		if (pthread_join(philos[i++], NULL))
+			return (distroy_mutex(forks, n_of_philos), 1);
+	return (0);
 }
 
 int main(int ac, char **av)
@@ -46,11 +46,19 @@ int main(int ac, char **av)
 	{
 		ft_exit(2);
 	}
-	stuff.number_of_philosophers = ft_atoi(av[1]);
+	stuff.number_of_philos = ft_atoi(av[1]);
 	stuff.time_to_die = ft_atoi(av[2]);
 	stuff.time_to_eat = ft_atoi(av[3]);
 	stuff.time_to_sleep = ft_atoi(av[4]);
 	if (ac == 5)
-		stuff.number_of_times_each_philosopher_must_eat = ft_atoi(av[5]);
-	start_sumilation(&stuff);
+		stuff.number_of_times_each_philo_must_eat = ft_atoi(av[5]);
+	stuff.philos = (pthread_t *) malloc(sizeof(pthread_t)
+		* stuff.number_of_philos);
+	stuff.forks = (pthread_mutex_t *) malloc(sizeof(pthread_mutex_t)
+		* stuff.number_of_philos);
+	if (init_sumilation(stuff))
+	{
+		free(philos);
+		exit(1);
+	}
 }
