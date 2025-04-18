@@ -6,7 +6,7 @@
 /*   By: yjaafar <yjaafar@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/14 08:28:53 by yjaafar           #+#    #+#             */
-/*   Updated: 2025/04/17 05:40:01 by yjaafar          ###   ########.fr       */
+/*   Updated: 2025/04/18 16:57:00 by yjaafar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,10 +21,13 @@ void	*start_sumilation(void *arg)
 
 void	init_sumilation(t_stuff *stuff)
 {
-	int	i;
+	int		i;
+	t_philo	philo;
 
 	i = 0;
 	while (i < stuff->number_of_philos)
+	{
+
 		if (pthread_mutex_init(&(stuff->forks[i++]), NULL))
 			return (distroy_mutex(stuff->forks, i - 1), 1);
 	i = 0;

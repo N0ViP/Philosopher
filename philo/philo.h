@@ -6,7 +6,7 @@
 /*   By: yjaafar <yjaafar@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/14 08:29:06 by yjaafar           #+#    #+#             */
-/*   Updated: 2025/04/17 05:40:03 by yjaafar          ###   ########.fr       */
+/*   Updated: 2025/04/18 16:56:58 by yjaafar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,12 @@ typedef	struct s_stuff
 	int				time_to_sleep;
 	int				number_of_times_each_philo_must_eat;
 }	t_stuff;
+
+typedef struct t_philo
+{
+	t_stuff	*stuff;
+	int		philo_n;
+}	t_philo;
 
 int		ft_atoi(char *s);
 void	ft_exit(char err);
