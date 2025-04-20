@@ -20,6 +20,27 @@ void	thinking(t_philo *philo)
 	printf("%ll\t%i\tis thinking\n", tv.tv_usec, philo->philo_n);
 }
 
+void	take_forks(t_philo *philo, int tmp)
+{
+	struct timeval	tv_before;
+	struct timeval	tv_after;
+
+	gettimeofday(&tv_before, NULL);
+	pthread_mutex_lock(&philo->stuff->forks[philo->philo_n]);
+	gettimeofday(&tv_after, NULL);
+	if (tv_after.tv_usec - tv_before.tv_usec >= philo->stuff->time_to_die)
+		philo->alive = 0;
+	else
+		printf("%ll\t%i\t has taken a fork\n", tv_after.tv_usec, philo->philo_n);
+	gettimeofday(&tv_before, NULL);
+	pthread_mutex_lock(&philo->stuff->forks[tmp]);
+	gettimeofday(&tv_after, NULL);
+	if (tv_after.tv_usec - tv_before.tv_usec >= philo->stuff->time_to_die)
+		philo->alive = 0;
+	else
+		printf("%ll\t%i\t has taken a fork\n", tv_after.tv_usec, philo->philo_n);
+}
+
 void	eating(t_philo *philo)
 {
 	struct timeval	tv_before;
@@ -30,20 +51,19 @@ void	eating(t_philo *philo)
 		 tmp = 0;
 	else
 		tmp = philo->philo_n + 1;
+	take_forks(philo, tmp);
 	gettimeofday(&tv_before, NULL);
-	pthread_mutex_lock(&philo->stuff->forks[philo->philo_n]);
-	gettimeofday(&tv_after, NULL);
-	if (tv_after.tv_usec - tv_before.tv_usec >= philo->stuff->time_to_die)
-		philo->is_died = 1;
-	else
-		printf("%ll\t%i\t has taken a fork\n", tv_after.tv_usec, philo->philo_n);
-	gettimeofday(&tv_before, NULL);
-	pthread_mutex_lock(&philo->stuff->forks[tmp]);
-	gettimeofday(&tv_after, NULL);
-	if (tv_after.tv_usec - tv_before.tv_usec >= philo->stuff->time_to_die)
-		philo->is_died = 1;
-	else
-		printf("%ll\t%i\t has taken a fork\n", tv_after.tv_usec, philo->philo_n);
+	while (1)
+	{
+		gettimeofday(&tv_after, NULL);
+		if (tv_after.tv_usec - tv_before.tv_usec >= philo->stuff->time_to_eat)
+			break ;
+	}
+	put_forks(philos, tmp);
+}
+void	sleeping(t_philo *philo)
+{
+	struct timeval	tv;
 }
 
 void	*start_sumilation(void *arg)
@@ -52,8 +72,8 @@ void	*start_sumilation(void *arg)
 	struct timeval	tv_after;
 	t_philo			*philo;
 
-	philo = (*t_philo) arg;
-	while (ALIVE)
+	philo = (t_philo *)arg;
+	while (philo->alive)
 	{
 		thinking(philo);
 		eating(philo);
@@ -61,7 +81,7 @@ void	*start_sumilation(void *arg)
 	}
 }
 
-void	init_sumilation(t_stuff *stuff)
+int	init_sumilation(t_stuff *stuff)
 {
 	int		i;
 	t_philo	*philo;
@@ -72,7 +92,7 @@ void	init_sumilation(t_stuff *stuff)
 	{
 		philo[i].stuff = stuff;
 		philo[i].philo_n = i;
-		philo[i].is_died = 0;
+		philo[i].alive = 1;
 		if (pthread_mutex_init(&(stuff->forks[i++]), NULL))
 			return (distroy_mutex(stuff->forks, i - 1), 1);
 	}
@@ -108,9 +128,8 @@ int main(int ac, char **av)
 		* stuff.number_of_philos);
 	stuff.forks = (pthread_mutex_t *) malloc(sizeof(pthread_mutex_t)
 		* stuff.number_of_philos);
-	if (init_sumilation(stuff))
+	if (init_sumilation(&stuff))
 	{
-		free(philos);
 		exit(1);
 	}
 }

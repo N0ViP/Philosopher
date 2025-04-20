@@ -36,7 +36,7 @@ typedef struct t_philo
 {
 	t_stuff	*stuff;
 	int		philo_n;
-	char	is_died;
+	char	alive;
 }	t_philo;
 
 int		ft_atoi(char *s);
