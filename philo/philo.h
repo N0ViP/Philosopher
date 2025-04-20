@@ -19,6 +19,8 @@
 # include <stdlib.h>
 # include <sys/time.h>
 
+# define ALIVE	1
+
 typedef	struct s_stuff
 {
 	pthread_t		*philos;
@@ -34,6 +36,7 @@ typedef struct t_philo
 {
 	t_stuff	*stuff;
 	int		philo_n;
+	char	is_died;
 }	t_philo;
 
 int		ft_atoi(char *s);

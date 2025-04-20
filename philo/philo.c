@@ -12,14 +12,53 @@
 
 # include "philo.h"
 
+void	thinking(t_philo *philo)
+{
+	struct timeval	tv;
+
+	gettimeofday(&tv, NULL);
+	printf("%ll\t%i\tis thinking\n", tv.tv_usec, philo->philo_n);
+}
+
+void	eating(t_philo *philo)
+{
+	struct timeval	tv_before;
+	struct timeval	tv_after;
+	int				tmp;
+
+	if (philo->philo_n == philo->stuff->number_of_philos - 1)
+		 tmp = 0;
+	else
+		tmp = philo->philo_n + 1;
+	gettimeofday(&tv_before, NULL);
+	pthread_mutex_lock(&philo->stuff->forks[philo->philo_n]);
+	gettimeofday(&tv_after, NULL);
+	if (tv_after.tv_usec - tv_before.tv_usec >= philo->stuff->time_to_die)
+		philo->is_died = 1;
+	else
+		printf("%ll\t%i\t has taken a fork\n", tv_after.tv_usec, philo->philo_n);
+	gettimeofday(&tv_before, NULL);
+	pthread_mutex_lock(&philo->stuff->forks[tmp]);
+	gettimeofday(&tv_after, NULL);
+	if (tv_after.tv_usec - tv_before.tv_usec >= philo->stuff->time_to_die)
+		philo->is_died = 1;
+	else
+		printf("%ll\t%i\t has taken a fork\n", tv_after.tv_usec, philo->philo_n);
+}
+
 void	*start_sumilation(void *arg)
 {
-	int				tmp;
-	struct timeval	tv;
-	t_stuff			*stuff;
+	struct timeval	tv_before;
+	struct timeval	tv_after;
+	t_philo			*philo;
 
-	stuff = (*t_stuff) arg;
-	gettimeofday(&tv, NULL);
+	philo = (*t_philo) arg;
+	while (ALIVE)
+	{
+		thinking(philo);
+		eating(philo);
+		sleeping(philo);
+	}
 }
 
 void	init_sumilation(t_stuff *stuff)
@@ -33,6 +72,7 @@ void	init_sumilation(t_stuff *stuff)
 	{
 		philo[i].stuff = stuff;
 		philo[i].philo_n = i;
+		philo[i].is_died = 0;
 		if (pthread_mutex_init(&(stuff->forks[i++]), NULL))
 			return (distroy_mutex(stuff->forks, i - 1), 1);
 	}
@@ -51,6 +91,7 @@ void	init_sumilation(t_stuff *stuff)
 
 int main(int ac, char **av)
 {
+	setbuf(stdout, NULL);
 	t_stuff	stuff;
 
 	if (ac != 5 || ac != 6)
