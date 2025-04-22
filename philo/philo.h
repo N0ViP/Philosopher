@@ -19,24 +19,24 @@
 # include <stdlib.h>
 # include <sys/time.h>
 
-# define ALIVE	1
-
 typedef	struct s_stuff
 {
 	pthread_t		*philos;
 	pthread_mutex_t	*forks;
 	int				number_of_philos;
-	int				time_to_die;
-	int				time_to_eat;
-	int				time_to_sleep;
+	int				t_to_die;
+	int				t_to_eat;
+	int				t_to_sleep;
 	int				number_of_times_each_philo_must_eat;
 }	t_stuff;
 
 typedef struct t_philo
 {
-	t_stuff	*stuff;
-	int		philo_n;
-	char	alive;
+	t_stuff			*stuff;
+	struct timeval	tv_beg;
+	int				first_fork;
+	int				second_fork;
+	char			alive;
 }	t_philo;
 
 int		ft_atoi(char *s);
