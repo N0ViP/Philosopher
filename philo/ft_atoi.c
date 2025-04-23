@@ -16,7 +16,7 @@ int	ft_atoi(char *s)
 {
 	long	res;
 
-	if (*s)
+	if (!*s)
 		ft_exit(1);
 	res = 0;
 	while (*s >= 48 && *s <= 57)

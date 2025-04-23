@@ -12,49 +12,88 @@
 
 # include "philo.h"
 
+void	kill_philos(t_philo *philos)
+{
+	int	i;
+	int	n;
+
+	i = 0;
+	n = philos[i].stuff->number_of_philos;
+	while (i < n)
+	{
+		philos[i].alive = 0;
+		i++;
+	}
+}
+
+void	*monitoring(t_philo *philos)
+{
+	struct timeval	tv;
+	int				i;
+
+	i = 0;
+	while (1)
+	{
+		while (i < philos->stuff->number_of_philos)
+		{
+			gettimeofday(&tv, NULL);
+			if (philos[i].tv_beg.tv_sec != 0 && tv.tv_usec - philos[i].tv_beg.tv_usec >= philos[i].stuff->t_to_die)
+			{
+				printf("%ld\t%i\tdied\n", tv.tv_usec, i + 1);
+				return (kill_philos(philos), (void *)0);
+			}
+			i++;
+		}
+	}
+}
+
 void	thinking(t_philo *philo)
 {
 	struct timeval	tv;
 
 	gettimeofday(&tv, NULL);
-	printf("%ll\t%i\tis thinking\n", tv.tv_usec, philo->first_fork + 1);
+	printf("%ld\t%i\tis thinking\n", tv.tv_usec, philo->first_fork + 1);
 }
 
 void	eating(t_philo *philo)
 {
 	struct timeval	tv_before;
-	struct timeval	tv_after;
 
 	pthread_mutex_lock(&philo->stuff->forks[philo->first_fork]);
+	gettimeofday(&tv_before, NULL);
+	printf("%ld\t%i\thas taken a fork\n", tv_before.tv_usec, philo->first_fork + 1);
 	pthread_mutex_lock(&philo->stuff->forks[philo->second_fork]);
+	gettimeofday(&tv_before, NULL);
+	printf("%ld\t%i\thas taken a fork\n", tv_before.tv_usec, philo->first_fork + 1);
 	gettimeofday(&philo->tv_beg, NULL);
-	while (philo->alive)
-	{
-		gettimeofday(&tv_after, NULL);
-		if (tv_after.tv_usec - philo->tv_beg.tv_usec >= philo->stuff->t_to_eat)
-			break ;
-	}
+	printf("%ld\t%i\tis eating\n", philo->tv_beg.tv_usec, philo->first_fork + 1);
+	usleep(philo->stuff->t_to_eat * 1000);
 	pthread_mutex_unlock(&philo->stuff->forks[philo->first_fork]);
 	pthread_mutex_unlock(&philo->stuff->forks[philo->second_fork]);
 }
 
 void	sleeping(t_philo *philo)
 {
-	
+	struct timeval	tv;
+
+	gettimeofday(&tv, NULL);
+	printf("%ld\t%i\tis sleeping\n", tv.tv_usec, philo->first_fork + 1);
+	usleep(philo->stuff->t_to_sleep * 1000);
 }
 
 void	*start_sumilation(void *arg)
 {
-	struct timeval	tv_before;
-	struct timeval	tv_after;
 	t_philo			*philo;
 
 	philo = (t_philo *)arg;
-	while (philo->alive)
+	while (1)
 	{
-		thinking(philo);
-		eating(philo);
-		sleeping(philo);
+		if (philo->alive)
+			thinking(philo);
+		if (philo->alive)
+			eating(philo);
+		if (philo->alive)
+			sleeping(philo);
 	}
 	return ((void*)0);
 }
@@ -65,7 +104,7 @@ int	init_sumilation(t_stuff *stuff)
 	t_philo	*philo;
 
 	i = 0;
-	philo = malloc(sizeof(t_philo *) * stuff->number_of_philos);
+	philo = malloc(sizeof(t_philo) * stuff->number_of_philos);
 	while (i < stuff->number_of_philos)
 	{
 		philo[i].stuff = stuff;
@@ -78,8 +117,12 @@ int	init_sumilation(t_stuff *stuff)
 	}
 	i = 0;
 	while (i < stuff->number_of_philos)
-		if (pthread_creat(&philo[i++], NULL, start_sumilation, stuff))
+	{
+		if (pthread_create(&philo[i].stuff->philos[i], NULL, start_sumilation, &philo[i]))
 			return (1);
+		i++;
+	}
+	monitoring(philo);
 	i = 0;
 	while (i < stuff->number_of_philos)
 		if (pthread_join(stuff->philos[i++], NULL))
@@ -92,15 +135,15 @@ int main(int ac, char **av)
 	setbuf(stdout, NULL);
 	t_stuff	stuff;
 
-	if (ac != 5 || ac != 6)
+	if (ac != 5 && ac != 6)
 	{
 		ft_exit(2);
 	}
 	stuff.number_of_philos = ft_atoi(av[1]);
 	stuff.t_to_die = ft_atoi(av[2]);
 	stuff.t_to_eat = ft_atoi(av[3]);
-	stuff.t_to_die = ft_atoi(av[4]);
-	if (ac == 5)
+	stuff.t_to_sleep = ft_atoi(av[4]);
+	if (ac == 6)
 		stuff.number_of_times_each_philo_must_eat = ft_atoi(av[5]);
 	stuff.philos = (pthread_t *) malloc(sizeof(pthread_t)
 		* stuff.number_of_philos);
