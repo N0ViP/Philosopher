@@ -41,5 +41,6 @@ typedef struct t_philo
 
 int		ft_atoi(char *s);
 void	ft_exit(char err);
+void    print_message(time_t tv_sec, int id, char *message);
 
 #endif
