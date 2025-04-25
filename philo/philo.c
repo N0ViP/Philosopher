@@ -12,12 +12,42 @@
 
 # include "philo.h"
 
+void	thinking(t_philo *philo)
+{
+	struct timeval	tv;
+
+	gettimeofday(&tv, NULL);
+	print_message(tv.tv_sec, philo->first_fork + 1, "is thinking\n");
+}
+
+void	eating(t_philo *philo)
+{
+	
+}
+
+void	*start_sumilation(void *arg)
+{
+	t_philo	*philo;
+
+	philo = (t_philo *) arg;
+	sleep(4);
+	gettimeofday(&philo->tv_beg, NULL);
+	while (philo->alive)
+	{
+		thinking(philo);
+		eating(philo);
+		sleeping(philo);
+	}
+	return ((void *)0);
+}
+
 void	init_philo(t_philo *philo, t_stuff *stuff, int i)
 {
 	philo->stuff = stuff;
 	philo->first_fork = i;
 	philo->second_fork = (i + 1) * (i != stuff->number_of_philos - 1);
 	philo->alive = 1;
+	philo->tv_beg = (struct timeval) {0};
 }
 
 int	init_sumilation(t_stuff *stuff)
@@ -35,7 +65,17 @@ int	init_sumilation(t_stuff *stuff)
 	}
 	i = 0;
 	while (i < stuff->number_of_philos)
-		if (pthread_create(philos[i].))
+	{
+		if (pthread_create(stuff->philos[i], NULL, start_sumilation, &philos[i]))
+			return (free(philos), 1);
+		i++;
+	}
+	monitoring(philos);
+	i = 0;
+	while (i < stuff->number_of_philos)
+		if (pthread_join(stuff->philos[i++], NULL))
+			return (free(philos), 1);
+	return (0);
 }
 
 int main(int ac, char *av[])
