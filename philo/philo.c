@@ -26,33 +26,34 @@ void	take_forks(t_philo *philo)
 	if (philo->first_fork % 2 == 0)
 	{
 		gettimeofday(&tv, NULL);
-		pthread_mutex_lock(philo->first_fork);
+		pthread_mutex_lock(&philo->stuff->forks[philo->first_fork]);
 		print_message(tv.tv_sec, philo->first_fork + 1, "has taken a fork\n");
 		gettimeofday(&tv, NULL);
-		pthread_mutex_lock(philo->second_fork);
+		pthread_mutex_lock(&philo->stuff->forks[philo->second_fork]);
 		print_message(tv.tv_sec, philo->first_fork + 1, "has taken a fork\n");
 	}
 	else
 	{
 		gettimeofday(&tv, NULL);
-		pthread_mutex_lock(philo->second_fork);
+		pthread_mutex_lock(&philo->stuff->forks[philo->second_fork]);
 		print_message(tv.tv_sec, philo->first_fork + 1, "has taken a fork\n");
 		gettimeofday(&tv, NULL);
-		pthread_mutex_lock(philo->first_fork);
+		pthread_mutex_lock(&philo->stuff->forks[philo->first_fork]);
 		print_message(tv.tv_sec, philo->first_fork + 1, "has taken a fork\n");
 	}
 }
 
 void	put_forks(t_philo *philo)
 {
-	pthread_mutex_unlock(philo->first_fork);
-	pthread_mutex_unlock(philo->second_fork);
+	pthread_mutex_unlock(&philo->stuff->forks[philo->first_fork]);
+	pthread_mutex_unlock(&philo->stuff->forks[philo->second_fork]);
 }
 
 void	eating(t_philo *philo)
 {
 	take_forks(philo);
 	gettimeofday(&philo->tv_beg, NULL);
+	print_message(philo->tv_beg.tv_sec, philo->first_fork + 1, "is eating\n");
 	usleep(philo->stuff->t_to_eat * 1000);
 	put_forks(philo);
 }
@@ -90,11 +91,24 @@ void	init_philo(t_philo *philo, t_stuff *stuff, int i)
 	philo->tv_beg = (struct timeval) {0};
 }
 
-void	monitoring(t_philo *philo)
+void	monitoring(t_philo *philos)
 {
+	struct timeval	tv;
+	int				i;
+	int				number_of_philos;
+	int				t_to_die;
+
+	number_of_philos = philos[0].stuff->number_of_philos;
+	t_to_die = philos[0].stuff->t_to_die;
 	while (1)
 	{
-		;
+		i = 0;
+		while (i <= number_of_philos)
+		{
+			gettimeofday(&tv, NULL);
+			if (philos[i].tv_beg.tv_sec && (tv.tv_sec - philos[i].tv_beg.tv_sec >= t_to_die))
+				exit(1);
+		}
 	}
 }
 
@@ -108,13 +122,14 @@ int	init_sumilation(t_stuff *stuff)
 	while (i < stuff->number_of_philos)
 	{
 		init_philo(&philos[i], stuff, i);
-		if (pthread_mutex_init(&philos[i++].stuff->forks, NULL))
+		if (pthread_mutex_init(&philos[i].stuff->forks[i], NULL))
 			return (free(philos), 1);
+		i++;
 	}
 	i = 0;
 	while (i < stuff->number_of_philos)
 	{
-		if (pthread_create(stuff->philos[i], NULL, start_sumilation, &philos[i]))
+		if (pthread_create(&stuff->philos[i], NULL, start_sumilation, &philos[i]))
 			return (free(philos), 1);
 		i++;
 	}
