@@ -20,9 +20,49 @@ void	thinking(t_philo *philo)
 	print_message(tv.tv_sec, philo->first_fork + 1, "is thinking\n");
 }
 
+void	take_forks(t_philo *philo)
+{
+	struct timeval	tv;
+	if (philo->first_fork % 2 == 0)
+	{
+		gettimeofday(&tv, NULL);
+		pthread_mutex_lock(philo->first_fork);
+		print_message(tv.tv_sec, philo->first_fork + 1, "has taken a fork\n");
+		gettimeofday(&tv, NULL);
+		pthread_mutex_lock(philo->second_fork);
+		print_message(tv.tv_sec, philo->first_fork + 1, "has taken a fork\n");
+	}
+	else
+	{
+		gettimeofday(&tv, NULL);
+		pthread_mutex_lock(philo->second_fork);
+		print_message(tv.tv_sec, philo->first_fork + 1, "has taken a fork\n");
+		gettimeofday(&tv, NULL);
+		pthread_mutex_lock(philo->first_fork);
+		print_message(tv.tv_sec, philo->first_fork + 1, "has taken a fork\n");
+	}
+}
+
+void	put_forks(t_philo *philo)
+{
+	pthread_mutex_unlock(philo->first_fork);
+	pthread_mutex_unlock(philo->second_fork);
+}
+
 void	eating(t_philo *philo)
 {
-	
+	take_forks(philo);
+	gettimeofday(&philo->tv_beg, NULL);
+	usleep(philo->stuff->t_to_eat * 1000);
+	put_forks(philo);
+}
+
+void	sleeping(t_philo *philo)
+{
+	struct timeval	tv;
+	gettimeofday(&tv, NULL);
+	print_message(tv.tv_sec, philo->first_fork + 1, "is sleeping\n");
+	usleep(philo->stuff->t_to_sleep * 1000);
 }
 
 void	*start_sumilation(void *arg)
@@ -48,6 +88,14 @@ void	init_philo(t_philo *philo, t_stuff *stuff, int i)
 	philo->second_fork = (i + 1) * (i != stuff->number_of_philos - 1);
 	philo->alive = 1;
 	philo->tv_beg = (struct timeval) {0};
+}
+
+void	monitoring(t_philo *philo)
+{
+	while (1)
+	{
+		;
+	}
 }
 
 int	init_sumilation(t_stuff *stuff)
