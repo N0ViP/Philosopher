@@ -14,8 +14,8 @@
 
 int fill_buffer(long long tv_msec, int id, char *buffer)
 {
-    int cnt;
     int tmp[25];
+    int cnt;
     int i;
 
     cnt = 0;
@@ -40,7 +40,7 @@ int fill_buffer(long long tv_msec, int id, char *buffer)
     return (cnt);
 }
 
-void    print_message(time_t tv_sec, int id, char *message)
+void    print_message(struct timeval *tv, int id, char *message)
 {
     char        buffer[512];
     long long   tv_msec;
@@ -48,7 +48,7 @@ void    print_message(time_t tv_sec, int id, char *message)
     int         i;
 
     i = 0;
-    tv_msec = tv_sec * 100;
+    tv_msec = (tv->tv_sec * 1000) + (tv->tv_usec / 1000);
     cnt = fill_buffer(tv_msec, id, buffer);
     while (message[i])
     {

@@ -36,11 +36,12 @@ typedef struct t_philo
 	struct timeval	tv_beg;
 	int				first_fork;
 	int				second_fork;
+	pthread_mutex_t	time_protection;
 	char			alive;
 }	t_philo;
 
 int		ft_atoi(char *s);
 void	ft_exit(char err);
-void    print_message(time_t tv_sec, int id, char *message);
+void    print_message(struct timeval *tv, int id, char *message);
 
 #endif
