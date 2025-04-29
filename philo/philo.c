@@ -22,6 +22,7 @@ void	thinking(t_philo *philo)
 	struct timeval	tv;
 
 	gettimeofday(&tv, NULL);
+	usleep(1000);
 	print_message(&tv, philo->first_fork + 1, "is thinking\n");
 }
 
@@ -50,16 +51,8 @@ void	take_forks(t_philo *philo)
 
 void	put_forks(t_philo *philo)
 {
-	if (philo->first_fork % 2 == 0)
-	{
-		pthread_mutex_unlock(&philo->stuff->forks[philo->first_fork]);
-		pthread_mutex_unlock(&philo->stuff->forks[philo->second_fork]);
-	}
-	else
-	{
-		pthread_mutex_unlock(&philo->stuff->forks[philo->second_fork]);
-		pthread_mutex_unlock(&philo->stuff->forks[philo->first_fork]);
-	}
+	pthread_mutex_unlock(&philo->stuff->forks[philo->first_fork]);
+	pthread_mutex_unlock(&philo->stuff->forks[philo->second_fork]);
 }
 
 void	eating(t_philo *philo)
