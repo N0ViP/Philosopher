@@ -12,18 +12,24 @@
 
 # include "philo.h"
 
-long long	get_current_tms(struct timeval *tv)
+long long	time_ms(struct timeval *tv)
 {
 	return ((long long)tv->tv_sec * 1000LL + tv->tv_usec / 1000);
 }
 
 void	thinking(t_philo *philo)
 {
-	struct timeval	tv;
+	struct timeval	tv_before;
+	struct timeval	tv_after;
 
-	gettimeofday(&tv, NULL);
-	usleep(1000);
-	print_message(&tv, philo->first_fork + 1, "is thinking\n");
+	gettimeofday(&tv_before, NULL);
+	print_message(&tv_before, philo->first_fork + 1, "is thinking\n");
+	while (1)
+	{
+		gettimeofday(&tv_after, NULL);
+		if (time_ms(&tv_after) - time_ms(&tv_before) >= 1)
+			break;
+	}
 }
 
 void	take_forks(t_philo *philo)
@@ -57,21 +63,35 @@ void	put_forks(t_philo *philo)
 
 void	eating(t_philo *philo)
 {
+	struct timeval	tv_after;
+	
 	take_forks(philo);
 	pthread_mutex_lock(&philo->time_protection);
 	gettimeofday(&philo->tv_beg, NULL);
 	pthread_mutex_unlock(&philo->time_protection);
 	print_message(&philo->tv_beg, philo->first_fork + 1, "is eating\n");
-	usleep(philo->stuff->t_to_eat * 1000);
+	while (1)
+	{
+		gettimeofday(&tv_after, NULL);
+		if (time_ms(&tv_after) - time_ms(&philo->tv_beg) >= philo->stuff->t_to_eat)
+			break;
+	}
 	put_forks(philo);
 }
 
 void	sleeping(t_philo *philo)
 {
-	struct timeval	tv;
-	gettimeofday(&tv, NULL);
-	print_message(&tv, philo->first_fork + 1, "is sleeping\n");
-	usleep(philo->stuff->t_to_sleep * 1000);
+	struct timeval	tv_before;
+	struct timeval	tv_after;
+
+	gettimeofday(&tv_before, NULL);
+	print_message(&tv_before, philo->first_fork + 1, "is sleeping\n");
+	while (1)
+	{
+		gettimeofday(&tv_after, NULL);
+		if (time_ms(&tv_after) - time_ms(&philo->tv_beg) >= philo->stuff->t_to_sleep)
+			break;
+	}
 }
 
 void	*start_sumilation(void *arg)
@@ -83,7 +103,7 @@ void	*start_sumilation(void *arg)
 	while (1)
 	{
 		gettimeofday(&tv, NULL);
-		if (get_current_tms(&tv) - get_current_tms(&philo->tv_beg) >= 0)
+		if (time_ms(&tv) - time_ms(&philo->tv_beg) >= 0)
 			break;
 	}
 	while (philo->alive)
@@ -121,7 +141,7 @@ void	*monitoring(void *arg)
 		{
 			pthread_mutex_lock(&philos[i].time_protection);
 			gettimeofday(&tv, NULL);
-			if (get_current_tms(&tv) - get_current_tms(&philos[i].tv_beg) >= philos[i].stuff->t_to_die)
+			if (time_ms(&tv) - time_ms(&philos[i].tv_beg) >= philos[i].stuff->t_to_die)
 			{
 				print_message(&tv, philos[i].first_fork + 1, "is died\n");
 				exit(1);
