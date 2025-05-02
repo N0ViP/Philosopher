@@ -76,6 +76,9 @@ void	eating(t_philo *philo)
 		if (time_ms(&tv_after) - time_ms(&philo->tv_beg) >= philo->stuff->t_to_eat)
 			break;
 	}
+	pthread_mutex_lock(&philo->eat_protection);
+	philo->eat++;
+	pthread_mutex_unlock(&philo->eat_protection);
 	put_forks(philo);
 }
 
@@ -119,20 +122,19 @@ void	init_philo(t_philo *philo, t_stuff *stuff, struct timeval *tv, int i)
 {
 	pthread_mutex_init(&philo->time_protection, NULL);
 	philo->stuff = stuff;
+	philo->eat = 0;
 	philo->first_fork = i;
 	philo->second_fork = (i + 1) % philo->stuff->number_of_philos;
 	philo->alive = 1;
 	philo->tv_beg = (struct timeval) {tv->tv_sec + 4, tv->tv_usec};
 }
 
-void	*monitoring(void *arg)
+void	loop_1(t_philo *philos)
 {
-	struct timeval	tv;
 	int				i;
+	struct timeval	tv;
 	int				number_of_philos;
-	t_philo			*philos;
 
-	philos = (t_philo *) arg;
 	number_of_philos = philos[0].stuff->number_of_philos;
 	while (1)
 	{
@@ -150,6 +152,42 @@ void	*monitoring(void *arg)
 			i++;
 		}
 	}
+}
+void	loop_2(t_philo *philos)
+{
+	int				i;
+	struct timeval	tv;
+	int				number_of_philos;
+
+	number_of_philos = philos[0].stuff->number_of_philos;
+	while (1)
+	{
+		i = 0;
+		while (i < number_of_philos)
+		{
+			pthread_mutex_lock(&philos[i].time_protection);
+			gettimeofday(&tv, NULL);
+			if (time_ms(&tv) - time_ms(&philos[i].tv_beg) >= philos[i].stuff->t_to_die)
+			{
+				print_message(&tv, philos[i].first_fork + 1, "is died\n");
+				exit(1);
+			}
+			pthread_mutex_unlock(&philos[i].time_protection);
+			i++;
+		}
+	}
+}
+
+void	*monitoring(void *arg)
+{
+	t_philo			*philos;
+
+	philos = (t_philo *) arg;
+	if (!philos[0].stuff->number_of_times_each_philo_must_eat)
+		loop_1(philos);
+	else
+		loop_2(philos);
+	return ((void *)0);
 }
 
 int	init_sumilation(t_stuff *stuff)
@@ -191,7 +229,7 @@ int main(int ac, char *av[])
 	t_stuff	stuff;
 
 	if (ac != 5 && ac != 6)
-		exit(1);
+		return (write(2, "Invalid arguments!\n", 19), 1);
 	stuff.number_of_times_each_philo_must_eat = 0;
 	stuff.number_of_philos = ft_atoi(av[1]);
 	stuff.t_to_die = ft_atoi(av[2]);

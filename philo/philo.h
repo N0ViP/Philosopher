@@ -36,8 +36,10 @@ typedef struct t_philo
 	struct timeval	tv_beg;
 	int				first_fork;
 	int				second_fork;
+	int				alive;
+	int				eat;
+	pthread_mutex_t	eat_protection;
 	pthread_mutex_t	time_protection;
-	char			alive;
 }	t_philo;
 
 int		ft_atoi(char *s);
