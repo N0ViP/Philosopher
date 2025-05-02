@@ -129,26 +129,36 @@ void	init_philo(t_philo *philo, t_stuff *stuff, struct timeval *tv, int i)
 	philo->tv_beg = (struct timeval) {tv->tv_sec + 4, tv->tv_usec};
 }
 
+int	check_status(t_philo *philo)
+{
+	struct timeval	tv;
+	long long		tmp;
+
+	gettimeofday(&tv, NULL);
+	pthread_mutex_lock(&philo->time_protection);
+	tmp = time_ms(&tv) - time_ms(&philo->tv_beg);
+	pthread_mutex_unlock(&philo->time_protection);
+	if (tmp  >= philo->stuff->t_to_die)
+	{
+		print_message(&tv, philo->first_fork + 1, "is died\n");
+		return (1);
+	}
+	return (0);
+}
+
 void	loop_1(t_philo *philos)
 {
 	int				i;
-	struct timeval	tv;
-	int				number_of_philos;
 
-	number_of_philos = philos[0].stuff->number_of_philos;
 	while (1)
 	{
 		i = 0;
-		while (i < number_of_philos)
+		while (i < philos[i].stuff->number_of_philos)
 		{
-			pthread_mutex_lock(&philos[i].time_protection);
-			gettimeofday(&tv, NULL);
-			if (time_ms(&tv) - time_ms(&philos[i].tv_beg) >= philos[i].stuff->t_to_die)
+			if (check_status(&philos[i]))
 			{
-				print_message(&tv, philos[i].first_fork + 1, "is died\n");
-				exit(1);
+				exit(1);	//??
 			}
-			pthread_mutex_unlock(&philos[i].time_protection);
 			i++;
 		}
 	}
@@ -156,25 +166,29 @@ void	loop_1(t_philo *philos)
 void	loop_2(t_philo *philos)
 {
 	int				i;
+	int				cnt;
 	struct timeval	tv;
-	int				number_of_philos;
 
-	number_of_philos = philos[0].stuff->number_of_philos;
 	while (1)
 	{
 		i = 0;
-		while (i < number_of_philos)
+		cnt = 0;
+		while (i < philos[i].stuff->number_of_philos)
 		{
-			pthread_mutex_lock(&philos[i].time_protection);
-			gettimeofday(&tv, NULL);
-			if (time_ms(&tv) - time_ms(&philos[i].tv_beg) >= philos[i].stuff->t_to_die)
+			if (check_status(&philos[i]))
 			{
-				print_message(&tv, philos[i].first_fork + 1, "is died\n");
-				exit(1);
+				gettimeofday(&tv, NULL);
+				print_message(&tv, i + 1, "is died\n");
+				exit(1);	//??
 			}
-			pthread_mutex_unlock(&philos[i].time_protection);
+			pthread_mutex_lock(&philos[i].eat_protection);
+			if (philos[i].eat >= philos[i].stuff->number_of_times_each_philo_must_eat)
+				cnt++;
+			pthread_mutex_unlock(&philos[i].eat_protection);
 			i++;
 		}
+		if (cnt == philos[0].stuff->number_of_times_each_philo_must_eat - 1)
+			exit(1);
 	}
 }
 
