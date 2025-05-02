@@ -182,6 +182,7 @@ int	init_sumilation(t_stuff *stuff)
 	while (i < stuff->number_of_philos)
 		if (pthread_join(stuff->philos[i++], NULL))
 			return (free(philos), 1);
+	free (philos);
 	return (0);
 }
 
@@ -191,13 +192,25 @@ int main(int ac, char *av[])
 
 	if (ac != 5 && ac != 6)
 		exit(1);
-	stuff.number_of_philos = ft_atoi(av[1]);	
-	stuff.t_to_die = ft_atoi(av[2]);	
-	stuff.t_to_eat = ft_atoi(av[3]);	
+	stuff.number_of_times_each_philo_must_eat = 0;
+	stuff.number_of_philos = ft_atoi(av[1]);
+	stuff.t_to_die = ft_atoi(av[2]);
+	stuff.t_to_eat = ft_atoi(av[3]);
 	stuff.t_to_sleep = ft_atoi(av[4]);
+	if (stuff.t_to_die <= 0
+		|| stuff.t_to_eat <= 0
+		|| stuff.t_to_sleep <= 0)
+		return (write(2, "Invalid arguments!\n", 19), 1);
 	if (ac == 6)
+	{
 		stuff.number_of_times_each_philo_must_eat = ft_atoi(av[5]);
+		if (stuff.number_of_times_each_philo_must_eat <= 0)
+			return (write(2, "Invalid arguments!\n", 19), 1);
+	}
 	stuff.philos = malloc(sizeof(pthread_t) * stuff.number_of_philos);
 	stuff.forks = malloc(sizeof(pthread_mutex_t) * stuff.number_of_philos);
 	init_sumilation(&stuff);
+	free (stuff.philos);
+	free (stuff.forks);
+	return (0);
 }
