@@ -28,6 +28,7 @@ typedef	struct s_stuff
 	int				t_to_eat;
 	int				t_to_sleep;
 	int				number_of_times_each_philo_must_eat;
+	struct timeval	tv_start;
 }	t_stuff;
 
 typedef struct t_philo
@@ -44,6 +45,7 @@ typedef struct t_philo
 
 int		ft_atoi(char *s);
 void	ft_exit(char err);
-void    print_message(struct timeval *tv, int id, char *message);
+void    print_message(struct timeval *tv_start,
+	struct timeval *tv, int id, char *message);
 
 #endif

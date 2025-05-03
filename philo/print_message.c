@@ -12,6 +12,11 @@
 
 # include "philo.h"
 
+static long long	time_ms(struct timeval *tv)
+{
+	return ((long long)tv->tv_sec * 1000LL + tv->tv_usec / 1000);
+}
+
 int fill_buffer(long long tv_msec, int id, char *buffer)
 {
     int tmp[25];
@@ -40,7 +45,8 @@ int fill_buffer(long long tv_msec, int id, char *buffer)
     return (cnt);
 }
 
-void    print_message(struct timeval *tv, int id, char *message)
+void    print_message(struct timeval *tv_start,
+    struct timeval *tv, int id, char *message)
 {
     char        buffer[512];
     long long   tv_msec;
@@ -48,7 +54,7 @@ void    print_message(struct timeval *tv, int id, char *message)
     int         i;
 
     i = 0;
-    tv_msec = (tv->tv_sec * 1000) + (tv->tv_usec / 1000);
+    tv_msec = time_ms(tv) - time_ms(tv_start);
     cnt = fill_buffer(tv_msec, id, buffer);
     while (message[i])
     {
