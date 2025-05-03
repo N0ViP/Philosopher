@@ -19,10 +19,17 @@ long long	time_ms(struct timeval *tv)
 
 void	thinking(t_philo *philo)
 {
-	struct timeval	tv;
+	struct timeval	tv_before;
+	struct timeval	tv_after;
 
-	gettimeofday(&tv, NULL);
-	print_message(&tv, philo->first_fork + 1, "is thinking\n");
+	gettimeofday(&tv_before, NULL);
+	print_message(&tv_before, philo->first_fork + 1, "is thinking\n");
+	while (1)
+	{
+		gettimeofday(&tv_after, NULL);
+		if (time_ms(&tv_after) - time_ms(&tv_before) >= 1)
+			break;
+	}
 }
 
 void	take_forks(t_philo *philo)
