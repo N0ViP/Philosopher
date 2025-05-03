@@ -19,17 +19,10 @@ long long	time_ms(struct timeval *tv)
 
 void	thinking(t_philo *philo)
 {
-	struct timeval	tv_before;
-	struct timeval	tv_after;
+	struct timeval	tv;
 
-	gettimeofday(&tv_before, NULL);
-	print_message(&tv_before, philo->first_fork + 1, "is thinking\n");
-	while (1)
-	{
-		gettimeofday(&tv_after, NULL);
-		if (time_ms(&tv_after) - time_ms(&tv_before) >= 1)
-			break;
-	}
+	gettimeofday(&tv, NULL);
+	print_message(&tv, philo->first_fork + 1, "is thinking\n");
 }
 
 void	take_forks(t_philo *philo)
@@ -49,7 +42,7 @@ void	take_forks(t_philo *philo)
 		pthread_mutex_lock(&philo->stuff->forks[philo->second_fork]);
 		gettimeofday(&tv, NULL);
 		print_message(&tv, philo->first_fork + 1, "has taken a fork\n");
-		pthread_mutex_lock(&pgithilo->stuff->forks[philo->first_fork]);
+		pthread_mutex_lock(&philo->stuff->forks[philo->first_fork]);
 		gettimeofday(&tv, NULL);
 		print_message(&tv, philo->first_fork + 1, "has taken a fork\n");
 	}
