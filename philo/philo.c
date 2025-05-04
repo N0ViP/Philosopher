@@ -17,6 +17,18 @@ static long long	time_ms(struct timeval *tv)
 	return ((long long)tv->tv_sec * 1000LL + tv->tv_usec / 1000);
 }
 
+void	kill_philos(t_philo *philos)
+{
+	int	i;
+
+	i = 0;
+	while (i < philos[0].stuff->number_of_philos)
+	{
+		philos[i].alive = 0;
+		i++;
+	}
+}
+
 void	thinking(t_philo *philo)
 {
 	struct timeval	tv_before;
@@ -139,24 +151,25 @@ void	init_philo(t_philo *philo, t_stuff *stuff, struct timeval *tv, int i)
 	philo->stuff->tv_start = (struct timeval) {tv->tv_sec + 4, tv->tv_usec};
 }
 
-int	check_status(t_philo *philo)
+int	check_status(t_philo *philos, int i)
 {
 	struct timeval	tv;
 	long long		tmp;
 
 	gettimeofday(&tv, NULL);
-	pthread_mutex_lock(&philo->time_protection);
-	tmp = time_ms(&tv) - time_ms(&philo->tv_beg);
-	pthread_mutex_unlock(&philo->time_protection);
-	if (tmp  >= philo->stuff->t_to_die)
+	pthread_mutex_lock(&philos[i].time_protection);
+	tmp = time_ms(&tv) - time_ms(&philos[i].tv_beg);
+	pthread_mutex_unlock(&philos[i].time_protection);
+	if (tmp  >= philos[i].stuff->t_to_die)
 	{
-		print_message(&philo->stuff->tv_start, &tv, philo->first_fork + 1, "is died\n");
+		kill_philos(philos);
+		print_message(&philos[i].stuff->tv_start, &tv, philos[i].first_fork + 1, "is died\n");
 		return (1);
 	}
 	return (0);
 }
 
-void	loop_1(t_philo *philos)
+int	loop_1(t_philo *philos)
 {
 	int				i;
 
@@ -165,15 +178,17 @@ void	loop_1(t_philo *philos)
 		i = 0;
 		while (i < philos[0].stuff->number_of_philos)
 		{
-			if (check_status(&philos[i]))
+			if (check_status(philos, i))
 			{
-				exit(1);	//??
+				kill_philos(philos);
+				return (1);
 			}
 			i++;
 		}
 	}
+	return (0);
 }
-void	loop_2(t_philo *philos)
+int	loop_2(t_philo *philos)
 {
 	int				i;
 	int				cnt;
@@ -184,10 +199,8 @@ void	loop_2(t_philo *philos)
 		cnt = 0;
 		while (i < philos[0].stuff->number_of_philos)
 		{
-			if (check_status(&philos[i]))
-			{
-				exit(1);	//??
-			}
+			if (check_status(philos, i))
+				return (kill_philos(philos), 1);
 			pthread_mutex_lock(&philos[i].eat_protection);
 			if (philos[i].eat >= philos[i].stuff->number_of_times_each_philo_must_eat)
 				cnt++;
@@ -197,21 +210,23 @@ void	loop_2(t_philo *philos)
 		if (cnt == philos[0].stuff->number_of_times_each_philo_must_eat - 1)
 		{
 			printf("finish\n");
-			exit(1);
+			exit(0);
 		}
 	}
+	return (0);
 }
 
 void	*monitoring(void *arg)
 {
 	t_philo			*philos;
+	int				reval;
 
 	philos = (t_philo *) arg;
 	if (!philos[0].stuff->number_of_times_each_philo_must_eat)
-		loop_1(philos);
+		reval = loop_1(philos);
 	else
-		loop_2(philos);
-	return ((void *)0);
+		reval = loop_2(philos);
+	return ((void *)((long long)reval));
 }
 
 int	init_sumilation(t_stuff *stuff)
