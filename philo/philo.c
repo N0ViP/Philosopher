@@ -21,22 +21,22 @@ void	kill_philos(t_philo *philos)
 {
 	int		i;
 	int		n;
-	// t_stuff	*stuff;
+	t_stuff	*stuff;
 
 	i = 0;
 	n = philos[0].stuff->number_of_philos;
-	// stuff = philos[0].stuff;
+	stuff = philos[0].stuff;
 	while (i < n)
 	{
 		philos[i].alive = 0;
 		i++;
 	}
-	// i = 0;
-	// while (i < n)
-	// {
-	// 	pthread_join(stuff->philos[i], NULL);
-	// 	i++;
-	// }
+	i = 0;
+	while (i < n)
+	{
+		pthread_join(stuff->philos[i], NULL);
+		i++;
+	}
 }
 
 void	thinking(t_philo *philo)
@@ -98,7 +98,7 @@ void	eating(t_philo *philo)
 		if (time_ms(&tv_after) - time_ms(&philo->tv_beg) >= philo->stuff->t_to_eat)
 			break;
 	}
-	if (philo->stuff->number_of_times_each_philo_must_eat)
+	if (philo->alive && philo->stuff->number_of_times_each_philo_must_eat)
 	{
 		pthread_mutex_lock(&philo->eat_protection);
 		philo->eat++;
@@ -181,7 +181,7 @@ int	check_status(t_philo *philos, int i)
 
 int	loop_1(t_philo *philos)
 {
-	int				i;
+	int	i;
 
 	while (1)
 	{
@@ -199,8 +199,8 @@ int	loop_1(t_philo *philos)
 }
 int	loop_2(t_philo *philos)
 {
-	int				i;
-	int				cnt;
+	int	i;
+	int	cnt;
 
 	while (1)
 	{
@@ -241,7 +241,7 @@ void	*monitoring(void *arg)
 int	init_sumilation(t_stuff *stuff)
 {
 	struct timeval	tv;
-	pthread_t		monitorn_id;
+	pthread_t		monitor_id;
 	t_philo			*philos;
 	int				i;
 
@@ -262,12 +262,13 @@ int	init_sumilation(t_stuff *stuff)
 			return (free(philos), 1);
 		i++;
 	}
-	if (pthread_create(&monitorn_id, NULL, monitoring, philos))
+	if (pthread_create(&monitor_id, NULL, monitoring, philos))
 			return (free(philos), 1);
-	i = 0;
-	while (i < stuff->number_of_philos)
-		if (pthread_join(stuff->philos[i++], NULL))
-			return (free(philos), 1);
+	pthread_join(monitor_id, NULL);
+	// i = 0;
+	// while (i < stuff->number_of_philos)
+	// 	if (pthread_join(stuff->philos[i++], NULL))
+	// 		return (free(philos), 1);
 	free (philos);
 	return (0);
 }
