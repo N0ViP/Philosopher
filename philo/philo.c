@@ -17,6 +17,21 @@ static long long	time_ms(struct timeval *tv)
 	return ((long long)tv->tv_sec * 1000LL + tv->tv_usec / 1000);
 }
 
+time_t ft_get_time()
+{
+    struct timeval time;
+    gettimeofday(&time, (void *)0);
+    return (time.tv_sec * 1000 + time.tv_usec / 1000);
+}
+
+void ft_usleep(long ms)
+{
+    long start;
+    start = ft_get_time();
+    while (ft_get_time() - start < ms)
+        usleep(100);
+}
+
 void	kill_philos(t_philo *philos)
 {
 	int		i;
@@ -42,16 +57,17 @@ void	kill_philos(t_philo *philos)
 void	thinking(t_philo *philo)
 {
 	struct timeval	tv_before;
-	struct timeval	tv_after;
+	// struct timeval	tv_after;
 
 	gettimeofday(&tv_before, NULL);
-	print_message(&philo->stuff->tv_start, &tv_before, philo, "is thinking\n");
-	while (philo->alive)
-	{
-		gettimeofday(&tv_after, NULL);
-		if (time_ms(&tv_after) - time_ms(&tv_before) >= 1)
-			break;
-	}
+	print_message(&philo->stuff->tv_start, &tv_before, philo->first_fork+1, "is thinking\n");
+	// while (philo->alive)
+	// {
+	// 	gettimeofday(&tv_after, NULL);
+	// 	if (time_ms(&tv_after) - time_ms(&tv_before) >= 1)
+	// 		break;
+	// }
+	ft_usleep(1);
 }
 
 void	take_forks(t_philo *philo)
@@ -61,19 +77,19 @@ void	take_forks(t_philo *philo)
 	{
 		pthread_mutex_lock(&philo->stuff->forks[philo->first_fork]);
 		gettimeofday(&tv, NULL);
-		print_message(&philo->stuff->tv_start, &tv, philo, "has taken a fork\n");
+		print_message(&philo->stuff->tv_start, &tv, philo->first_fork+1, "has taken a fork\n");
 		pthread_mutex_lock(&philo->stuff->forks[philo->second_fork]);
 		gettimeofday(&tv, NULL);
-		print_message(&philo->stuff->tv_start, &tv, philo, "has taken a fork\n");
+		print_message(&philo->stuff->tv_start, &tv, philo->first_fork+1, "has taken a fork\n");
 	}
 	else
 	{
 		pthread_mutex_lock(&philo->stuff->forks[philo->second_fork]);
 		gettimeofday(&tv, NULL);
-		print_message(&philo->stuff->tv_start, &tv, philo, "has taken a fork\n");
+		print_message(&philo->stuff->tv_start, &tv, philo->first_fork+1, "has taken a fork\n");
 		pthread_mutex_lock(&philo->stuff->forks[philo->first_fork]);
 		gettimeofday(&tv, NULL);
-		print_message(&philo->stuff->tv_start, &tv, philo, "has taken a fork\n");
+		print_message(&philo->stuff->tv_start, &tv, philo->first_fork+1, "has taken a fork\n");
 	}
 }
 
@@ -85,19 +101,20 @@ void	put_forks(t_philo *philo)
 
 void	eating(t_philo *philo)
 {
-	struct timeval	tv_after;
+	// struct timeval	tv_after;
 	
 	take_forks(philo);
 	pthread_mutex_lock(&philo->time_protection);
 	gettimeofday(&philo->tv_beg, NULL);
 	pthread_mutex_unlock(&philo->time_protection);
-	print_message(&philo->stuff->tv_start, &philo->tv_beg, philo, "is eating\n");
-	while (philo->alive)
-	{
-		gettimeofday(&tv_after, NULL);
-		if (time_ms(&tv_after) - time_ms(&philo->tv_beg) >= philo->stuff->t_to_eat)
-			break;
-	}
+	print_message(&philo->stuff->tv_start, &philo->tv_beg, philo->first_fork+1, "is eating\n");
+	// while (philo->alive)
+	// {
+	// 	gettimeofday(&tv_after, NULL);
+	// 	if (time_ms(&tv_after) - time_ms(&philo->tv_beg) >= philo->stuff->t_to_eat)
+	// 		break;
+	// }
+	ft_usleep(philo->stuff->t_to_eat);
 	if (philo->alive && philo->stuff->number_of_times_each_philo_must_eat)
 	{
 		pthread_mutex_lock(&philo->eat_protection);
@@ -110,16 +127,17 @@ void	eating(t_philo *philo)
 void	sleeping(t_philo *philo)
 {
 	struct timeval	tv_before;
-	struct timeval	tv_after;
+	// struct timeval	tv_after;
 
 	gettimeofday(&tv_before, NULL);
-	print_message(&philo->stuff->tv_start, &tv_before, philo, "is sleeping\n");
-	while (philo->alive)
-	{
-		gettimeofday(&tv_after, NULL);
-		if (time_ms(&tv_after) - time_ms(&philo->tv_beg) >= philo->stuff->t_to_sleep)
-			break;
-	}
+	print_message(&philo->stuff->tv_start, &tv_before, philo->first_fork+1, "is sleeping\n");
+	// while (philo->alive)
+	// {
+	// 	gettimeofday(&tv_after, NULL);
+	// 	if (time_ms(&tv_after) - time_ms(&tv_before) >= philo->stuff->t_to_sleep)
+	// 		break;
+	// }
+	ft_usleep(philo->stuff->t_to_sleep);
 }
 
 void	*start_sumilation(void *arg)
@@ -173,7 +191,7 @@ int	check_status(t_philo *philos, int i)
 	if (tmp  >= philos[i].stuff->t_to_die)
 	{
 		kill_philos(philos);
-		print_message(&philos[i].stuff->tv_start, &tv, philos, "is died\n");
+		print_message(&philos[i].stuff->tv_start, &tv, philos[i].first_fork+1, "is died\n");
 		return (1);
 	}
 	return (0);
@@ -194,6 +212,7 @@ int	loop_1(t_philo *philos)
 			}
 			i++;
 		}
+		usleep(7000);
 	}
 	return (0);
 }
