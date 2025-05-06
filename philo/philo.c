@@ -14,7 +14,7 @@
 
 static long long	time_ms(struct timeval *tv)
 {
-	return ((long long)tv->tv_sec * 1000LL + tv->tv_usec / 1000);
+	return (((long long)tv->tv_sec * 1000LL) + (tv->tv_usec / 1000));
 }
 
 time_t ft_get_time()
@@ -24,12 +24,12 @@ time_t ft_get_time()
     return (time.tv_sec * 1000 + time.tv_usec / 1000);
 }
 
-void ft_usleep(long ms)
+void ft_usleep(t_philo *philo, long ms)
 {
     long start;
     start = ft_get_time();
-    while (ft_get_time() - start < ms)
-        usleep(100);
+    while (philo->alive && ft_get_time() - start <= ms)
+		usleep(100);
 }
 
 void	kill_philos(t_philo *philos)
@@ -57,17 +57,10 @@ void	kill_philos(t_philo *philos)
 void	thinking(t_philo *philo)
 {
 	struct timeval	tv_before;
-	// struct timeval	tv_after;
 
 	gettimeofday(&tv_before, NULL);
 	print_message(&philo->stuff->tv_start, &tv_before, philo->first_fork+1, "is thinking\n");
-	// while (philo->alive)
-	// {
-	// 	gettimeofday(&tv_after, NULL);
-	// 	if (time_ms(&tv_after) - time_ms(&tv_before) >= 1)
-	// 		break;
-	// }
-	ft_usleep(1);
+	ft_usleep(philo, 1);
 }
 
 void	take_forks(t_philo *philo)
@@ -101,20 +94,12 @@ void	put_forks(t_philo *philo)
 
 void	eating(t_philo *philo)
 {
-	// struct timeval	tv_after;
-	
 	take_forks(philo);
 	pthread_mutex_lock(&philo->time_protection);
 	gettimeofday(&philo->tv_beg, NULL);
 	pthread_mutex_unlock(&philo->time_protection);
 	print_message(&philo->stuff->tv_start, &philo->tv_beg, philo->first_fork+1, "is eating\n");
-	// while (philo->alive)
-	// {
-	// 	gettimeofday(&tv_after, NULL);
-	// 	if (time_ms(&tv_after) - time_ms(&philo->tv_beg) >= philo->stuff->t_to_eat)
-	// 		break;
-	// }
-	ft_usleep(philo->stuff->t_to_eat);
+	ft_usleep(philo, philo->stuff->t_to_eat);
 	if (philo->alive && philo->stuff->number_of_times_each_philo_must_eat)
 	{
 		pthread_mutex_lock(&philo->eat_protection);
@@ -127,17 +112,10 @@ void	eating(t_philo *philo)
 void	sleeping(t_philo *philo)
 {
 	struct timeval	tv_before;
-	// struct timeval	tv_after;
 
 	gettimeofday(&tv_before, NULL);
 	print_message(&philo->stuff->tv_start, &tv_before, philo->first_fork+1, "is sleeping\n");
-	// while (philo->alive)
-	// {
-	// 	gettimeofday(&tv_after, NULL);
-	// 	if (time_ms(&tv_after) - time_ms(&tv_before) >= philo->stuff->t_to_sleep)
-	// 		break;
-	// }
-	ft_usleep(philo->stuff->t_to_sleep);
+	ft_usleep(philo, philo->stuff->t_to_sleep);
 }
 
 void	*start_sumilation(void *arg)
@@ -212,7 +190,6 @@ int	loop_1(t_philo *philos)
 			}
 			i++;
 		}
-		usleep(7000);
 	}
 	return (0);
 }
