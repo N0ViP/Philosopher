@@ -23,7 +23,6 @@ typedef	struct s_stuff
 {
 	pthread_t		*philos;
 	pthread_mutex_t	*forks;
-	pthread_mutex_t	print_protection;
 	int				number_of_philos;
 	int				t_to_die;
 	int				t_to_eat;
@@ -41,12 +40,16 @@ typedef struct t_philo
 	int				alive;
 	int				eat;
 	pthread_mutex_t	eat_protection;
+	pthread_mutex_t	alive_protection;
 	pthread_mutex_t	time_protection;
 }	t_philo;
 
-int		ft_atoi(char *s);
-void	ft_exit(char err);
-void    print_message(struct timeval *tv_start,
+int			ft_atoi(char *s);
+void		ft_exit(char err);
+void		print_message(struct timeval *tv_start,
 	struct timeval *tv, int id, char *message);
+long long	time_ms(struct timeval *tv);
+void		*run_simulation(void *arg);
+void		*monitoring(void *arg);
 
 #endif
