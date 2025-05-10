@@ -89,13 +89,10 @@ void	eating(t_philo *philo)
 	put_forks(philo);
 }
 
-void	*run_simulation(void *arg)
+void	wait_4sec(t_philo *philo)
 {
-	t_philo			*philo;
-	struct timeval	tv;
 	long long		time;
-
-	philo = (t_philo *) arg;
+	struct timeval	tv;
 	while (true)
 	{
 		gettimeofday(&tv, NULL);
@@ -103,12 +100,26 @@ void	*run_simulation(void *arg)
 		time = time_ms(&tv) - time_ms(&philo->tv_beg);
 		pthread_mutex_unlock(&philo->alive_protection);
 		if (time >= 0)
-			break ;
+			return ;
 	}
+}
+
+void	*run_simulation(void *arg)
+{
+	t_philo			*philo;
+	int				alive;
+
+	philo = (t_philo *) arg;
+	wait_4sec(philo);
 	if (philo->first_fork + 1 % 2 == 0)
 		ft_usleep(philo, 5);
 	while (true)
 	{
+		pthread_mutex_lock(&philo->alive_protection);
+		alive = philo->alive;
+		pthread_mutex_unlock(&philo->alive_protection);
+		if (!alive)
+			break ;
 		thinking(philo);
 		eating(philo);
 		sleeping(philo);
