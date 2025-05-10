@@ -47,13 +47,13 @@ typedef struct t_philo
 
 int			ft_atoi(char *s);
 void		ft_exit(char err);
-void		print_message(struct timeval *tv_start,
-	struct timeval *tv, int id, char *message);
-long long	time_ms(struct timeval *tv);
-void		*run_simulation(void *arg);
 void		*monitoring(void *arg);
+void		*run_simulation(void *arg);
+long long	time_ms(struct timeval *tv);
+void		ft_usleep(t_philo *philo, int time);
 void		kill_philos(t_philo *philos, int n_of_philos);
 void		destroy_mutex(t_philo *philos, int n_of_philos);
-void		*monitoring(void *arg);
+void		print_message(struct timeval *tv_start, struct timeval *tv,
+			int id, char *message);
 
 #endif
