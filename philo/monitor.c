@@ -1,5 +1,25 @@
 #include "philo.h"
 
+int	check_philos(t_philo *philos, int i)
+{
+	struct timeval	tv;
+	long long	time;
+	int 		t_to_die;
+
+	t_to_die = philos[i].stuff->t_to_die;
+	pthread_mutex_lock(&philos[i].time_protection);
+	time = time_ms(&philos[i].tv_beg);
+	pthread_mutex_unlock(&philos[i].time_protection);
+	if (time >= t_to_die)
+	{
+		gettimeofday(&tv, NULL);
+		print_message(&philos[i].stuff->tv_start, &tv, i + 1, "is died\n");
+		kill_philos(philos, philos[i].stuff->number_of_philos);
+		return (false);
+	}
+	return (true);
+}
+
 int	monitorint_1(t_philo *philos)
 {
 	int i;
@@ -11,11 +31,11 @@ int	monitorint_1(t_philo *philos)
 		i = 0;
 		while (i < n)
 		{
-			if (check_philos(&philos[i]))
+			if (!check_philos(philos, i))
 				return (1);
 			i++;
 		}
-		usleep(5000);
+		ft_usleep(5);
 	}
 	return (0);
 }
@@ -33,7 +53,7 @@ int	monitorint_2(t_philo *philos)
 		cnt = 0;
 		while (i < philos[0].stuff->number_of_philos)
 		{
-			if (check_philos(&philos[i]))
+			if (!check_philos(philos, i))
 				return (1);
 			pthread_mutex_lock(&philos[i].eat_protection);
 			if (philos[i].eat >= tmp)
