@@ -31,13 +31,62 @@ void	sleeping(t_philo *philo)
 	if (!alive)
 		return ;
 	gettimeofday(&tv, NULL);
-	print_message(&philo->stuff->tv_start, &tv, philo->first_fork + 1, "is sleeping");
+	print_message(&philo->stuff->tv_start, &tv,
+		philo->first_fork + 1, "is sleeping\n");
 	ft_usleep(philo, philo->stuff->t_to_sleep);
+}
+
+void	take_forks(t_philo *philo)
+{
+	struct timeval	tv;
+
+	if (philo->first_fork % 2)
+	{
+		gettimeofday(&tv, NULL);
+		print_message(&philo->stuff->tv_start, &tv,
+			philo->first_fork + 1, "has taken a fork\n");
+		pthread_mutex_lock(&philo->stuff->forks[philo->first_fork]);
+		gettimeofday(&tv, NULL);
+		print_message(&philo->stuff->tv_start, &tv,
+			philo->first_fork + 1, "has taken a fork\n");
+		pthread_mutex_lock(&philo->stuff->forks[philo->second_fork]);
+	}
+	else
+	{
+		gettimeofday(&tv, NULL);
+		print_message(&philo->stuff->tv_start, &tv,
+			philo->first_fork + 1, "has taken a fork\n");
+		pthread_mutex_lock(&philo->stuff->forks[philo->first_fork]);
+		gettimeofday(&tv, NULL);
+		print_message(&philo->stuff->tv_start, &tv,
+			philo->first_fork + 1, "has taken a fork\n");
+		pthread_mutex_lock(&philo->stuff->forks[philo->second_fork]);
+	}
+}
+
+void	put_forks(t_philo *philo)
+{
+	pthread_mutex_lock(&philo->stuff->forks[philo->first_fork]);
+	pthread_mutex_lock(&philo->stuff->forks[philo->second_fork]);
 }
 
 void	eating(t_philo *philo)
 {
-	
+	int	alive;
+
+	pthread_mutex_lock(&philo->alive_protection);
+	alive = philo->alive;
+	pthread_mutex_unlock(&philo->alive_protection);
+	if (!alive)
+		return ;
+	take_forks(philo);
+	pthread_mutex_lock(&philo->time_protection);
+	gettimeofday(&philo->tv_beg, NULL);
+	pthread_mutex_unlock(&philo->time_protection);
+	print_message(&philo->stuff->tv_start, &philo->tv_beg,
+		philo->first_fork + 1, "is eating\n");
+	ft_usleep(philo, philo->stuff->t_to_eat);
+	put_forks(philo);
 }
 
 void	*run_simulation(void *arg)
