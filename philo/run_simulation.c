@@ -56,11 +56,11 @@ void	take_forks(t_philo *philo)
 		gettimeofday(&tv, NULL);
 		print_message(&philo->stuff->tv_start, &tv,
 			philo->first_fork + 1, "has taken a fork\n");
-		pthread_mutex_lock(&philo->stuff->forks[philo->first_fork]);
+		pthread_mutex_lock(&philo->stuff->forks[philo->second_fork]);
 		gettimeofday(&tv, NULL);
 		print_message(&philo->stuff->tv_start, &tv,
 			philo->first_fork + 1, "has taken a fork\n");
-		pthread_mutex_lock(&philo->stuff->forks[philo->second_fork]);
+		pthread_mutex_lock(&philo->stuff->forks[philo->first_fork]);
 	}
 }
 

@@ -43,20 +43,23 @@ void	destroy_mutex(t_philo *philos, int n_of_philos)
 
 void	ft_usleep(t_philo *philo, int time)
 {
-	struct timeval	tv_before;
-	struct timeval	tv_after;
-	int				alive;
+	// struct timeval	tv_before;
+	// struct timeval	tv_after;
+	// int				alive;
 
-	gettimeofday(&tv_before, NULL);
-	while (true)
-	{
-		pthread_mutex_lock(&philo->alive_protection);
-		alive = philo->alive;
-		pthread_mutex_unlock(&philo->alive_protection);
-		if (!alive)
-			return ;
-		gettimeofday(&tv_after, NULL);
-		if (time_ms(&tv_after) - time_ms(&tv_before) >= time)
-			break ;
-	}
+	// gettimeofday(&tv_before, NULL);
+	// while (true)
+	// {
+	// 	pthread_mutex_lock(&philo->alive_protection);
+	// 	alive = philo->alive;
+	// 	pthread_mutex_unlock(&philo->alive_protection);
+	// 	if (!alive)
+	// 		return ;
+	// 	gettimeofday(&tv_after, NULL);
+	// 	if (time_ms(&tv_after) - time_ms(&tv_before) >= time)
+	// 		break ;
+	// }
+
+	(void)philo;
+	usleep(time * 1000);
 }

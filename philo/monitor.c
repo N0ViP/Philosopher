@@ -3,18 +3,19 @@
 int	check_philos(t_philo *philos, int i)
 {
 	struct timeval	tv;
-	long long	time;
-	int 		t_to_die;
+	long long		time;
+	int 			t_to_die;
 
 	t_to_die = philos[i].stuff->t_to_die;
 	pthread_mutex_lock(&philos[i].time_protection);
 	time = time_ms(&philos[i].tv_beg);
 	pthread_mutex_unlock(&philos[i].time_protection);
-	if (time >= t_to_die)
+	gettimeofday(&tv, NULL);
+	if (time_ms(&tv) - time >= t_to_die)
 	{
 		gettimeofday(&tv, NULL);
-		print_message(&philos[i].stuff->tv_start, &tv, i + 1, "is died\n");
 		kill_philos(philos, philos[i].stuff->number_of_philos);
+		print_message(&philos[i].stuff->tv_start, &tv, i + 1, "is died\n");
 		return (false);
 	}
 	return (true);
@@ -35,7 +36,6 @@ int	monitoring_1(t_philo *philos)
 				return (1);
 			i++;
 		}
-		usleep(5000);
 	}
 	return (0);
 }
@@ -62,7 +62,7 @@ int	monitoring_2(t_philo *philos)
 			i++;
 		}
 		if (cnt == philos[0].stuff->number_of_philos)
-			return (kill_philos(philos, philos[i].stuff->number_of_philos), 0);
+			return (0);
 		usleep(5000);
 	}
 	return (0);

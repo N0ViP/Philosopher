@@ -66,8 +66,8 @@ int	init_philos(t_stuff *stuff)
 			return (kill_philos(philos, i), free(philos), 1);
 		i++;
 	}
-	// if (creat_monitor(philos))
-	// 	return (kill_philos(philos, stuff->number_of_philos), free(philos), 1);
+	creat_monitor(philos);
+	free(philos);
 	return (0);
 }
 
@@ -96,7 +96,7 @@ int main(int ac, char *av[])
 	stuff.philos = malloc(sizeof(pthread_t) * stuff.number_of_philos);
 	stuff.forks = malloc(sizeof(pthread_mutex_t) * stuff.number_of_philos);
 	reval = init_philos(&stuff);
-	while (1)
-		sleep(1000);
+	// while (1)
+	// 	sleep(1000);
 	return (free(stuff.philos),free(stuff.forks), reval);
 }
