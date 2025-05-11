@@ -13,8 +13,8 @@ int	check_philos(t_philo *philos, int i)
 	gettimeofday(&tv, NULL);
 	if (time_ms(&tv) - time >= t_to_die)
 	{
-		gettimeofday(&tv, NULL);
 		kill_philos(philos, philos[i].stuff->number_of_philos);
+		gettimeofday(&tv, NULL);
 		print_message(&philos[i].stuff->tv_start, &tv, i + 1, "is died\n");
 		return (false);
 	}
