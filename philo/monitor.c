@@ -20,7 +20,7 @@ int	check_philos(t_philo *philos, int i)
 	return (true);
 }
 
-int	monitorint_1(t_philo *philos)
+int	monitoring_1(t_philo *philos)
 {
 	int i;
 	int	n;
@@ -35,12 +35,12 @@ int	monitorint_1(t_philo *philos)
 				return (1);
 			i++;
 		}
-		ft_usleep(5);
+		usleep(5000);
 	}
 	return (0);
 }
 
-int	monitorint_2(t_philo *philos)
+int	monitoring_2(t_philo *philos)
 {
 	int i;
 	int	cnt;
@@ -51,7 +51,7 @@ int	monitorint_2(t_philo *philos)
 	{
 		i = 0;
 		cnt = 0;
-		while (i < philos[0].stuff->number_of_philos)
+		while (i < philos[i].stuff->number_of_philos)
 		{
 			if (!check_philos(philos, i))
 				return (1);
@@ -62,7 +62,7 @@ int	monitorint_2(t_philo *philos)
 			i++;
 		}
 		if (cnt == philos[0].stuff->number_of_philos)
-			return (kill_philos(philos, philos[0].stuff->number_of_philos), 0);
+			return (kill_philos(philos, philos[i].stuff->number_of_philos), 0);
 		usleep(5000);
 	}
 	return (0);
@@ -70,13 +70,13 @@ int	monitorint_2(t_philo *philos)
 
 void	*monitoring(void *arg)
 {
-	t_philo	*philos;
-	int		reval;
+	t_philo		*philos;
+	long long	reval;
 
 	philos = (t_philo *) arg;
 	if (!philos->stuff->number_of_times_each_philo_must_eat)
 		reval = monitoring_1(philos);
 	else
 		reval = monitoring_2(philos);
-	return (&reval);
+	return ((void *)(reval));
 }

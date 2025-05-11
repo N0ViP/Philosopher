@@ -66,8 +66,8 @@ void	take_forks(t_philo *philo)
 
 void	put_forks(t_philo *philo)
 {
-	pthread_mutex_lock(&philo->stuff->forks[philo->first_fork]);
-	pthread_mutex_lock(&philo->stuff->forks[philo->second_fork]);
+	pthread_mutex_unlock(&philo->stuff->forks[philo->first_fork]);
+	pthread_mutex_unlock(&philo->stuff->forks[philo->second_fork]);
 }
 
 void	eating(t_philo *philo)
@@ -93,12 +93,13 @@ void	wait_4sec(t_philo *philo)
 {
 	long long		time;
 	struct timeval	tv;
+
 	while (true)
 	{
 		gettimeofday(&tv, NULL);
 		pthread_mutex_lock(&philo->time_protection);
 		time = time_ms(&tv) - time_ms(&philo->tv_beg);
-		pthread_mutex_unlock(&philo->alive_protection);
+		pthread_mutex_unlock(&philo->time_protection);
 		if (time >= 0)
 			return ;
 	}

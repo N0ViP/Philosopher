@@ -15,13 +15,13 @@
 int	creat_monitor(t_philo *philos)
 {
 	pthread_t		monitor;
-	int				*reval;
+	void			*reval;
 
-	if (pthread_creat(&monitor, NULL, monitoring, philos))
+	if (pthread_create(&monitor, NULL, monitoring, philos))
 		return (1);
 	if (pthread_join(monitor, &reval))
 		return (1);
-	return (*reval);
+	return ((long long) (long long *)reval);
 }
 
 int	init_each_philo(t_philo *philo, t_stuff *stuff, int i)
@@ -30,7 +30,7 @@ int	init_each_philo(t_philo *philo, t_stuff *stuff, int i)
 	philo->alive = 1;
 	philo->eat = 0;
 	philo->first_fork = (i);
-	philo->second_fork = (i + 1) % (stuff->number_of_philos - 1);
+	philo->second_fork = (i + 1) % (stuff->number_of_philos);
 	philo->tv_beg = stuff->tv_start;
 	if (pthread_mutex_init(&stuff->forks[i], NULL))
 		return (1);
@@ -66,8 +66,9 @@ int	init_philos(t_stuff *stuff)
 			return (kill_philos(philos, i), free(philos), 1);
 		i++;
 	}
-	if (creat_monitor(philos))
-		return (kill_philos(philos, stuff->number_of_philos), free(philos), 1);
+	// if (creat_monitor(philos))
+	// 	return (kill_philos(philos, stuff->number_of_philos), free(philos), 1);
+	return (0);
 }
 
 int main(int ac, char *av[])
@@ -95,5 +96,7 @@ int main(int ac, char *av[])
 	stuff.philos = malloc(sizeof(pthread_t) * stuff.number_of_philos);
 	stuff.forks = malloc(sizeof(pthread_mutex_t) * stuff.number_of_philos);
 	reval = init_philos(&stuff);
+	while (1)
+		sleep(1000);
 	return (free(stuff.philos),free(stuff.forks), reval);
 }
