@@ -49,7 +49,7 @@
      int         i;
  
      i = 0;
-     tv_msec = (time_us(tv) - time_us(tv_start)) / 1000;
+     tv_msec = time_ms(tv) - time_ms(tv_start);
      cnt = fill_buffer(tv_msec, id, buffer);
      while (message[i])
      {
