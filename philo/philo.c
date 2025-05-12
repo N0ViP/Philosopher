@@ -96,7 +96,5 @@ int main(int ac, char *av[])
 	stuff.philos = malloc(sizeof(pthread_t) * stuff.number_of_philos);
 	stuff.forks = malloc(sizeof(pthread_mutex_t) * stuff.number_of_philos);
 	reval = init_philos(&stuff);
-	// while (1)
-	// 	sleep(1000);
 	return (free(stuff.philos),free(stuff.forks), reval);
 }

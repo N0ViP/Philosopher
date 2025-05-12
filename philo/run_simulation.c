@@ -12,7 +12,6 @@ void	thinking(t_philo *philo)
 		return ;
 	gettimeofday(&tv, NULL);
 	print_message(&philo->stuff->tv_start, &tv, philo->first_fork + 1, "is thinking\n");
-	ft_usleep(philo, 1);
 }
 
 void	sleeping(t_philo *philo)
@@ -38,24 +37,24 @@ void	take_forks(t_philo *philo)
 	if (philo->first_fork % 2)
 	{
 		gettimeofday(&tv, NULL);
-		print_message(&philo->stuff->tv_start, &tv,
-			philo->first_fork + 1, "has taken a fork\n");
 		pthread_mutex_lock(&philo->stuff->forks[philo->first_fork]);
-		gettimeofday(&tv, NULL);
 		print_message(&philo->stuff->tv_start, &tv,
 			philo->first_fork + 1, "has taken a fork\n");
+		gettimeofday(&tv, NULL);
 		pthread_mutex_lock(&philo->stuff->forks[philo->second_fork]);
+		print_message(&philo->stuff->tv_start, &tv,
+			philo->first_fork + 1, "has taken a fork\n");
 	}
 	else
 	{
 		gettimeofday(&tv, NULL);
-		print_message(&philo->stuff->tv_start, &tv,
-			philo->first_fork + 1, "has taken a fork\n");
 		pthread_mutex_lock(&philo->stuff->forks[philo->second_fork]);
-		gettimeofday(&tv, NULL);
 		print_message(&philo->stuff->tv_start, &tv,
 			philo->first_fork + 1, "has taken a fork\n");
+		gettimeofday(&tv, NULL);
 		pthread_mutex_lock(&philo->stuff->forks[philo->first_fork]);
+		print_message(&philo->stuff->tv_start, &tv,
+			philo->first_fork + 1, "has taken a fork\n");
 	}
 }
 
@@ -97,6 +96,7 @@ void	wait_4sec(t_philo *philo)
 		pthread_mutex_unlock(&philo->time_protection);
 		if (time >= 0)
 			return ;
+		usleep(500);
 	}
 }
 

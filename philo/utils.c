@@ -20,11 +20,6 @@ void	kill_philos(t_philo *philos, int n_of_philos)
 		pthread_mutex_lock(&philos[i].alive_protection);
 		philos[i].alive = 0;
 		pthread_mutex_unlock(&philos[i].alive_protection);
-		i++;
-	}
-	i = 0;
-	while (i < n_of_philos)
-	{
 		pthread_join(philos[i].stuff->philos[i], NULL);
 		i++;
 	}
@@ -61,8 +56,9 @@ void	ft_usleep(t_philo *philo, int time)
 	// 	if (!alive)
 	// 		return ;
 	// 	gettimeofday(&tv_after, NULL);
-	// 	if (time_us(&tv_after) - time_us(&tv_before) >= (long long)time * 1000)
+	// 	if (time_us(&tv_after) - time_us(&tv_before) >= (long long)time)
 	// 		break ;
+	// 	usleep(500);
 	// }
 
 	(void)philo;

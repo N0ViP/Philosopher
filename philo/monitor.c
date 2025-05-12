@@ -11,7 +11,7 @@ int	check_philos(t_philo *philos, int i)
 	time = time_us(&philos[i].tv_beg);
 	pthread_mutex_unlock(&philos[i].time_protection);
 	gettimeofday(&tv, NULL);
-	if (time_us(&tv) - time >= (long long)t_to_die * 1000)
+	if (time_us(&tv) - time >= (long long)t_to_die)
 	{
 		kill_philos(philos, philos[i].stuff->number_of_philos);
 		gettimeofday(&tv, NULL);
@@ -36,6 +36,7 @@ int	monitoring_1(t_philo *philos)
 				return (1);
 			i++;
 		}
+		usleep(500);
 	}
 	return (0);
 }
@@ -63,6 +64,7 @@ int	monitoring_2(t_philo *philos)
 		}
 		if (cnt == philos[0].stuff->number_of_philos)
 			return (0);
+		usleep(500);
 	}
 	return (0);
 }
