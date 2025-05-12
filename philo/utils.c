@@ -1,5 +1,10 @@
 # include "philo.h"
 
+long long	time_us(struct timeval *tv)
+{
+ 	return ((long long)tv->tv_sec * 1000000LL + tv->tv_usec);
+}
+
 long long	time_ms(struct timeval *tv)
 {
  	return ((long long)tv->tv_sec * 1000LL + tv->tv_usec / 1000);
@@ -56,7 +61,7 @@ void	ft_usleep(t_philo *philo, int time)
 	// 	if (!alive)
 	// 		return ;
 	// 	gettimeofday(&tv_after, NULL);
-	// 	if (time_ms(&tv_after) - time_ms(&tv_before) >= time)
+	// 	if (time_us(&tv_after) - time_us(&tv_before) >= (long long)time * 1000)
 	// 		break ;
 	// }
 

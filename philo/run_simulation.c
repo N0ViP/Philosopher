@@ -4,20 +4,15 @@ void	thinking(t_philo *philo)
 {
 	struct timeval	tv;
 	int				alive;
-	// int				t_to_think;
 
 	pthread_mutex_lock(&philo->alive_protection);
 	alive = philo->alive;
 	pthread_mutex_unlock(&philo->alive_protection);
 	if (!alive)
 		return ;
-	// if (philo->stuff->t_to_eat >= philo->stuff->t_to_sleep)
-	// 	t_to_think = philo->stuff->t_to_sleep;
-	// else
-	// 	t_to_think = philo->stuff->t_to_eat;
 	gettimeofday(&tv, NULL);
 	print_message(&philo->stuff->tv_start, &tv, philo->first_fork + 1, "is thinking\n");
-	ft_usleep(philo, 10);
+	ft_usleep(philo, 1);
 }
 
 void	sleeping(t_philo *philo)
@@ -98,7 +93,7 @@ void	wait_4sec(t_philo *philo)
 	{
 		gettimeofday(&tv, NULL);
 		pthread_mutex_lock(&philo->time_protection);
-		time = time_ms(&tv) - time_ms(&philo->tv_beg);
+		time = time_us(&tv) - time_us(&philo->tv_beg);
 		pthread_mutex_unlock(&philo->time_protection);
 		if (time >= 0)
 			return ;
@@ -112,8 +107,6 @@ void	*run_simulation(void *arg)
 
 	philo = (t_philo *) arg;
 	wait_4sec(philo);
-	if (philo->first_fork + 1 % 2 == 0)
-		ft_usleep(philo, 10);
 	while (true)
 	{
 		pthread_mutex_lock(&philo->alive_protection);

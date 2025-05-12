@@ -8,10 +8,10 @@ int	check_philos(t_philo *philos, int i)
 
 	t_to_die = philos[i].stuff->t_to_die;
 	pthread_mutex_lock(&philos[i].time_protection);
-	time = time_ms(&philos[i].tv_beg);
+	time = time_us(&philos[i].tv_beg);
 	pthread_mutex_unlock(&philos[i].time_protection);
 	gettimeofday(&tv, NULL);
-	if (time_ms(&tv) - time >= t_to_die)
+	if (time_us(&tv) - time >= (long long)t_to_die * 1000)
 	{
 		kill_philos(philos, philos[i].stuff->number_of_philos);
 		gettimeofday(&tv, NULL);
