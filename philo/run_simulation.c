@@ -7,7 +7,8 @@ void	thinking(t_philo *philo)
 	if (!is_alive(philo))
 		return ;
 	gettimeofday(&tv, NULL);
-	print_message(&philo->stuff->tv_start, &tv, philo->first_fork + 1, "is thinking\n");
+	print_message(&philo->stuff->tv_start, &tv,
+		philo->first_fork + 1, "is thinking\n");
 }
 
 void	sleeping(t_philo *philo)
@@ -105,7 +106,7 @@ void	*run_simulation(void *arg)
 	int				alive;
 
 	philo = (t_philo *) arg;
-	wait_4sec(philo);
+	// wait_4sec(philo);
 	while (true)
 	{
 		pthread_mutex_lock(&philo->alive_protection);

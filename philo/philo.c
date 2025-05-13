@@ -46,13 +46,11 @@ int	init_each_philo(t_philo *philo, t_stuff *stuff, int i)
 int	init_philos(t_stuff *stuff)
 {
 	t_philo			*philos;
-	struct timeval	tv;
 	int				i;
 
 	i = 0;
 	philos = malloc(sizeof(t_philo) * stuff->number_of_philos);
-	gettimeofday(&tv, NULL);
-	stuff->tv_start = (struct timeval) {tv.tv_sec + 4, tv.tv_usec};
+	gettimeofday(&stuff->tv_start, NULL);
 	while (i < stuff->number_of_philos)
 	{
 		if (init_each_philo(&philos[i], stuff, i))
