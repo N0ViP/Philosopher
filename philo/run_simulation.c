@@ -67,22 +67,24 @@ void	put_forks(t_philo *philo)
 void	eating(t_philo *philo)
 {
 	int				alive;
-	struct timeval	tv;
 
 	pthread_mutex_lock(&philo->alive_protection);
 	alive = philo->alive;
 	pthread_mutex_unlock(&philo->alive_protection);
 	if (!alive)
 		return ;
-	gettimeofday(&tv, NULL);
-	if ((time_ms(&tv) - time_ms(&philo->tv_beg)) >= philo->stuff->t_to_die)
-	{
-		return ;
-	}
 	take_forks(philo);
 	pthread_mutex_lock(&philo->time_protection);
 	gettimeofday(&philo->tv_beg, NULL);
 	pthread_mutex_unlock(&philo->time_protection);
+	pthread_mutex_lock(&philo->alive_protection);
+	alive = philo->alive;
+	pthread_mutex_unlock(&philo->alive_protection);
+	if (!alive)
+	{
+		put_forks(philo);
+		return ;
+	}
 	print_message(&philo->stuff->tv_start, &philo->tv_beg,
 		philo->first_fork + 1, "is eating\n");
 	ft_usleep(philo, philo->stuff->t_to_eat);
@@ -124,5 +126,5 @@ void	*run_simulation(void *arg)
 		eating(philo);
 		sleeping(philo);
 	}
-	return ((void *) 0);
+	return (NULL);
 }
