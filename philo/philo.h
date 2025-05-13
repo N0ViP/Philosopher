@@ -38,7 +38,7 @@ typedef struct t_philo
 	struct timeval	tv_beg;
 	int				first_fork;
 	int				second_fork;
-	int				alive;
+	bool			alive;
 	int				eat;
 	pthread_mutex_t	eat_protection;
 	pthread_mutex_t	alive_protection;
@@ -48,6 +48,7 @@ typedef struct t_philo
 int			ft_atoi(char *s);
 void		ft_exit(char err);
 void		*monitoring(void *arg);
+bool		is_alive(t_philo *philo);
 void		*run_simulation(void *arg);
 long long	time_ms(struct timeval *tv);
 long long	time_us(struct timeval *tv);

@@ -46,19 +46,25 @@ void	destroy_mutex(t_philo *philos, int n_of_philos)
 	}
 }
 
+bool	is_alive(t_philo *philo)
+{
+	bool alive;
+
+	pthread_mutex_lock(&philo->alive_protection);
+	alive = philo->alive;
+	pthread_mutex_unlock(&philo->alive_protection);
+	return (alive);
+}
+
 void	ft_usleep(t_philo *philo, int time)
 {
 	struct timeval	tv_before;
 	struct timeval	tv_after;
-	int				alive;
 
 	gettimeofday(&tv_before, NULL);
 	while (true)
 	{
-		pthread_mutex_lock(&philo->alive_protection);
-		alive = philo->alive;
-		pthread_mutex_unlock(&philo->alive_protection);
-		if (!alive)
+		if (!is_alive(philo))
 			return ;
 		gettimeofday(&tv_after, NULL);
 		if (time_ms(&tv_after) - time_ms(&tv_before) >= time)
