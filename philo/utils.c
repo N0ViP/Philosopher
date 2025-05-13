@@ -1,13 +1,8 @@
 # include "philo.h"
 
-long long	time_us(struct timeval *tv)
-{
- 	return ((long long)tv->tv_sec * 1000000LL + tv->tv_usec);
-}
-
 long long	time_ms(struct timeval *tv)
 {
- 	return ((long long)tv->tv_sec * 1000LL + tv->tv_usec / 1000);
+ 	return ((long long)tv->tv_sec * 1000LL + (tv->tv_usec + 500) / 1000);
 }
 
 void	kill_philos(t_philo *philos, int n_of_philos)
@@ -20,6 +15,11 @@ void	kill_philos(t_philo *philos, int n_of_philos)
 		pthread_mutex_lock(&philos[i].alive_protection);
 		philos[i].alive = 0;
 		pthread_mutex_unlock(&philos[i].alive_protection);
+		i++;
+	}
+	i = 0;
+	while (i < n_of_philos)
+	{
 		pthread_join(philos[i].stuff->philos[i], NULL);
 		i++;
 	}
@@ -43,24 +43,21 @@ void	destroy_mutex(t_philo *philos, int n_of_philos)
 
 void	ft_usleep(t_philo *philo, int time)
 {
-	// struct timeval	tv_before;
-	// struct timeval	tv_after;
-	// int				alive;
+	struct timeval	tv_before;
+	struct timeval	tv_after;
+	int				alive;
 
-	// gettimeofday(&tv_before, NULL);
-	// while (true)
-	// {
-	// 	pthread_mutex_lock(&philo->alive_protection);
-	// 	alive = philo->alive;
-	// 	pthread_mutex_unlock(&philo->alive_protection);
-	// 	if (!alive)
-	// 		return ;
-	// 	gettimeofday(&tv_after, NULL);
-	// 	if (time_us(&tv_after) - time_us(&tv_before) >= (long long)time)
-	// 		break ;
-	// 	usleep(500);
-	// }
-
-	(void)philo;
-	usleep(time * 1000);
+	gettimeofday(&tv_before, NULL);
+	while (true)
+	{
+		pthread_mutex_lock(&philo->alive_protection);
+		alive = philo->alive;
+		pthread_mutex_unlock(&philo->alive_protection);
+		if (!alive)
+			return ;
+		gettimeofday(&tv_after, NULL);
+		if (time_ms(&tv_after) - time_ms(&tv_before) >= time)
+			break ;
+		usleep(500);
+	}
 }

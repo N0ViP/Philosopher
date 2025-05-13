@@ -8,11 +8,10 @@ void	thinking(t_philo *philo)
 	pthread_mutex_lock(&philo->alive_protection);
 	alive = philo->alive;
 	pthread_mutex_unlock(&philo->alive_protection);
-	if (!alive)
-		return ;
 	gettimeofday(&tv, NULL);
+	if (!alive || time_ms(&tv) - time_ms(&philo->tv_beg) >= philo->stuff->t_to_die)
+		return ;
 	print_message(&philo->stuff->tv_start, &tv, philo->first_fork + 1, "is thinking\n");
-	ft_usleep(philo, 1);
 }
 
 void	sleeping(t_philo *philo)
@@ -23,8 +22,6 @@ void	sleeping(t_philo *philo)
 	pthread_mutex_lock(&philo->alive_protection);
 	alive = philo->alive;
 	pthread_mutex_unlock(&philo->alive_protection);
-	if (!alive)
-		return ;
 	gettimeofday(&tv, NULL);
 	print_message(&philo->stuff->tv_start, &tv,
 		philo->first_fork + 1, "is sleeping\n");
@@ -41,7 +38,7 @@ void	take_forks(t_philo *philo)
 		gettimeofday(&tv, NULL);
 		print_message(&philo->stuff->tv_start, &tv,
 			philo->first_fork + 1, "has taken a fork\n");
-			pthread_mutex_lock(&philo->stuff->forks[philo->second_fork]);
+		pthread_mutex_lock(&philo->stuff->forks[philo->second_fork]);
 		gettimeofday(&tv, NULL);
 		print_message(&philo->stuff->tv_start, &tv,
 			philo->first_fork + 1, "has taken a fork\n");
@@ -67,12 +64,14 @@ void	put_forks(t_philo *philo)
 
 void	eating(t_philo *philo)
 {
-	int	alive;
+	int				alive;
+	struct timeval	tv;
 
 	pthread_mutex_lock(&philo->alive_protection);
 	alive = philo->alive;
 	pthread_mutex_unlock(&philo->alive_protection);
-	if (!alive)
+	gettimeofday(&tv, NULL);
+	if (!alive || time_ms(&tv) - time_ms(&philo->tv_beg) >= philo->stuff->t_to_die)
 		return ;
 	take_forks(philo);
 	pthread_mutex_lock(&philo->time_protection);
