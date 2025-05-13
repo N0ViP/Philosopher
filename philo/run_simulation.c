@@ -8,9 +8,9 @@ void	thinking(t_philo *philo)
 	pthread_mutex_lock(&philo->alive_protection);
 	alive = philo->alive;
 	pthread_mutex_unlock(&philo->alive_protection);
-	gettimeofday(&tv, NULL);
-	if (!alive || time_ms(&tv) - time_ms(&philo->tv_beg) >= philo->stuff->t_to_die)
+	if (!alive)
 		return ;
+	gettimeofday(&tv, NULL);
 	print_message(&philo->stuff->tv_start, &tv, philo->first_fork + 1, "is thinking\n");
 }
 
@@ -22,6 +22,8 @@ void	sleeping(t_philo *philo)
 	pthread_mutex_lock(&philo->alive_protection);
 	alive = philo->alive;
 	pthread_mutex_unlock(&philo->alive_protection);
+	if (!alive)
+		return ;
 	gettimeofday(&tv, NULL);
 	print_message(&philo->stuff->tv_start, &tv,
 		philo->first_fork + 1, "is sleeping\n");
@@ -70,9 +72,13 @@ void	eating(t_philo *philo)
 	pthread_mutex_lock(&philo->alive_protection);
 	alive = philo->alive;
 	pthread_mutex_unlock(&philo->alive_protection);
-	gettimeofday(&tv, NULL);
-	if (!alive || time_ms(&tv) - time_ms(&philo->tv_beg) >= philo->stuff->t_to_die)
+	if (!alive)
 		return ;
+	gettimeofday(&tv, NULL);
+	if ((time_ms(&tv) - time_ms(&philo->tv_beg)) >= philo->stuff->t_to_die)
+	{
+		return ;
+	}
 	take_forks(philo);
 	pthread_mutex_lock(&philo->time_protection);
 	gettimeofday(&philo->tv_beg, NULL);
