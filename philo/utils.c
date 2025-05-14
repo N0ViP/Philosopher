@@ -5,11 +5,6 @@ long long	time_ms(struct timeval *tv)
  	return ((long long)(tv->tv_sec * 1000LL) + (tv->tv_usec / 1000));
 }
 
-long long	time_us(struct timeval *tv)
-{
- 	return ((long long)(tv->tv_sec * 1000000LL) + tv->tv_usec);
-}
-
 void	kill_philos(t_philo *philos, int n_of_philos)
 {
 	int	i;
@@ -50,9 +45,9 @@ bool	is_alive(t_philo *philo)
 {
 	bool alive;
 
-	pthread_mutex_lock(&philo->alive_protection);
+	// pthread_mutex_lock(&philo->alive_protection);
 	alive = philo->alive;
-	pthread_mutex_unlock(&philo->alive_protection);
+	// pthread_mutex_unlock(&philo->alive_protection);
 	return (alive);
 }
 

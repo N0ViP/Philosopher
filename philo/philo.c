@@ -31,7 +31,7 @@ int	init_each_philo(t_philo *philo, t_stuff *stuff, int i)
 	philo->eat = 0;
 	philo->first_fork = (i);
 	philo->second_fork = (i + 1) % (stuff->number_of_philos);
-	philo->tv_beg = stuff->tv_start;
+	philo->tv_beg = (struct timeval) {0};
 	if (pthread_mutex_init(&stuff->forks[i], NULL))
 		return (1);
 	if (pthread_mutex_init(&philo->eat_protection, NULL))

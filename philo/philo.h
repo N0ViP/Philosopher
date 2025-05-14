@@ -51,7 +51,6 @@ void		*monitoring(void *arg);
 bool		is_alive(t_philo *philo);
 void		*run_simulation(void *arg);
 long long	time_ms(struct timeval *tv);
-long long	time_us(struct timeval *tv);
 void		ft_usleep(t_philo *philo, int time);
 void		kill_philos(t_philo *philos, int n_of_philos);
 void		destroy_mutex(t_philo *philos, int n_of_philos);
