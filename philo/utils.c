@@ -45,9 +45,9 @@ bool	is_alive(t_philo *philo)
 {
 	bool alive;
 
-	// pthread_mutex_lock(&philo->alive_protection);
+	pthread_mutex_lock(&philo->alive_protection);
 	alive = philo->alive;
-	// pthread_mutex_unlock(&philo->alive_protection);
+	pthread_mutex_unlock(&philo->alive_protection);
 	return (alive);
 }
 
