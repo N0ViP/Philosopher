@@ -36,7 +36,6 @@ int	monitoring_1(t_philo *philos)
 				return (1);
 			i++;
 		}
-		usleep(500);
 	}
 	return (0);
 }
@@ -64,7 +63,6 @@ int	monitoring_2(t_philo *philos)
 		}
 		if (cnt == philos[0].stuff->number_of_philos)
 			return (0);
-		usleep(500);
 	}
 	return (0);
 }
