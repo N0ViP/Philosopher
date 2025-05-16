@@ -6,11 +6,11 @@
 /*   By: yjaafar <yjaafar@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/14 08:28:53 by yjaafar           #+#    #+#             */
-/*   Updated: 2025/04/19 04:58:17 by yjaafar          ###   ########.fr       */
+/*   Updated: 2025/05/16 21:49:11 by yjaafar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-# include "philo.h"
+#include "philo.h"
 
 int	creat_monitor(t_philo *philos)
 {
@@ -21,7 +21,7 @@ int	creat_monitor(t_philo *philos)
 		return (1);
 	if (pthread_join(monitor, (void *)&reval))
 		return (1);
-	return ((long long) (long long *)reval);
+	return ((long long) reval);
 }
 
 int	init_each_philo(t_philo *philo, t_stuff *stuff, int i)
@@ -31,7 +31,7 @@ int	init_each_philo(t_philo *philo, t_stuff *stuff, int i)
 	philo->eat = 0;
 	philo->first_fork = (i);
 	philo->second_fork = (i + 1) % (stuff->number_of_philos);
-	philo->tv_beg = (struct timeval) {0};
+	philo->tv_beg = (struct timeval){0};
 	if (pthread_mutex_init(&stuff->forks[i], NULL))
 		return (1);
 	if (pthread_mutex_init(&philo->eat_protection, NULL))
@@ -69,7 +69,7 @@ int	init_philos(t_stuff *stuff)
 	return (0);
 }
 
-int main(int ac, char *av[])
+int	main(int ac, char *av[])
 {
 	t_stuff	stuff;
 	int		reval;
@@ -89,10 +89,10 @@ int main(int ac, char *av[])
 	{
 		stuff.number_of_times_each_philo_must_eat = ft_atoi(av[5]);
 		if (stuff.number_of_times_each_philo_must_eat <= 0)
-			return (write(2, "Invalid arguments!\n", 19), 1);
+			return (0);
 	}
 	stuff.philos = malloc(sizeof(pthread_t) * stuff.number_of_philos);
 	stuff.forks = malloc(sizeof(pthread_mutex_t) * stuff.number_of_philos);
 	reval = init_philos(&stuff);
-	return (free(stuff.philos),free(stuff.forks), reval);
+	return (free(stuff.philos), free(stuff.forks), reval);
 }

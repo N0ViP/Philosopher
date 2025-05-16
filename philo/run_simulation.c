@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   run_simulation.c                                   :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: yjaafar <yjaafar@student.1337.ma>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/05/16 21:53:36 by yjaafar           #+#    #+#             */
+/*   Updated: 2025/05/16 21:54:52 by yjaafar          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
 
 void	thinking(t_philo *philo)
@@ -11,7 +23,8 @@ void	thinking(t_philo *philo)
 	print_message(&philo->stuff->tv_start, &tv,
 		philo->first_fork + 1, "is thinking\n");
 	time = ft_abs(philo->stuff->t_to_eat - philo->stuff->t_to_sleep) + 10;
-	if (time + philo->stuff->t_to_eat + philo->stuff->t_to_sleep >= philo->stuff->t_to_die)
+	if (time + philo->stuff->t_to_eat + philo->stuff->t_to_sleep
+		>= philo->stuff->t_to_die)
 		time /= 2;
 	ft_usleep(philo, time);
 }
@@ -26,46 +39,6 @@ void	sleeping(t_philo *philo)
 	print_message(&philo->stuff->tv_start, &tv,
 		philo->first_fork + 1, "is sleeping\n");
 	ft_usleep(philo, philo->stuff->t_to_sleep);
-}
-
-bool	take_fork(t_philo *philo, int fork)
-{
-	struct timeval	tv;
-
-	pthread_mutex_lock(&philo->stuff->forks[fork]);
-	gettimeofday(&tv, NULL);
-	if (!is_alive(philo))
-	{
-		pthread_mutex_unlock(&philo->stuff->forks[fork]);
-		return (false);
-	}
-	print_message(&philo->stuff->tv_start, &tv,
-		philo->first_fork + 1, "has taken a fork\n");
-	return (true);
-}
-
-void	put_fork(t_philo *philo, int fork)
-{
-	pthread_mutex_unlock(&philo->stuff->forks[fork]);
-}
-
-int	take_forks(t_philo *philo)
-{
-	if (philo->first_fork % 2)
-	{
-		if (!take_fork(philo, philo->first_fork))
-			return (false);
-		if (!take_fork(philo, philo->second_fork))
-			return (put_fork(philo, philo->first_fork), false);
-	}
-	else
-	{
-		if (!take_fork(philo, philo->second_fork))
-			return (false);
-		if (!take_fork(philo, philo->first_fork))
-			return (put_fork(philo, philo->second_fork), false);
-	}
-	return (true);
 }
 
 void	eating(t_philo *philo)
@@ -87,7 +60,7 @@ void	eating(t_philo *philo)
 	put_fork(philo, philo->first_fork);
 	put_fork(philo, philo->second_fork);
 	pthread_mutex_lock(&philo->eat_protection);
-		philo->eat++;
+	philo->eat++;
 	pthread_mutex_unlock(&philo->eat_protection);
 }
 

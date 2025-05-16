@@ -6,7 +6,7 @@
 /*   By: yjaafar <yjaafar@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/14 08:29:06 by yjaafar           #+#    #+#             */
-/*   Updated: 2025/04/18 16:56:58 by yjaafar          ###   ########.fr       */
+/*   Updated: 2025/05/16 21:50:55 by yjaafar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 # include <stdlib.h>
 # include <sys/time.h>
 
-typedef	struct s_stuff
+typedef struct s_stuff
 {
 	pthread_t		*philos;
 	pthread_mutex_t	*forks;
@@ -51,11 +51,14 @@ void		ft_exit(char err);
 void		*monitoring(void *arg);
 bool		is_alive(t_philo *philo);
 void		*run_simulation(void *arg);
+int			take_forks(t_philo *philo);
 long long	time_ms(struct timeval *tv);
+void		put_fork(t_philo *philo, int fork);
+bool		take_fork(t_philo *philo, int fork);
 void		ft_usleep(t_philo *philo, int time);
 void		kill_philos(t_philo *philos, int n_of_philos);
 void		destroy_mutex(t_philo *philos, int n_of_philos);
 void		print_message(struct timeval *tv_start, struct timeval *tv,
-			int id, char *message);
+				int id, char *message);
 
 #endif

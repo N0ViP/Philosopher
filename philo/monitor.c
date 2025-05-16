@@ -1,10 +1,22 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   monitor.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: yjaafar <yjaafar@student.1337.ma>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/05/16 21:47:04 by yjaafar           #+#    #+#             */
+/*   Updated: 2025/05/16 21:47:54 by yjaafar          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
 
 int	check_philos(t_philo *philos, int i)
 {
 	struct timeval	tv;
 	long long		time;
-	int 			t_to_die;
+	int				t_to_die;
 
 	t_to_die = philos[i].stuff->t_to_die;
 	pthread_mutex_lock(&philos[i].time_protection);
@@ -15,7 +27,7 @@ int	check_philos(t_philo *philos, int i)
 	{
 		kill_philos(philos, philos[i].stuff->number_of_philos);
 		gettimeofday(&tv, NULL);
-		print_message(&philos[i].stuff->tv_start, &tv, i + 1, "is died\n");
+		print_message(&philos[i].stuff->tv_start, &tv, i + 1, "died\n");
 		return (false);
 	}
 	return (true);
@@ -23,7 +35,7 @@ int	check_philos(t_philo *philos, int i)
 
 int	monitoring_1(t_philo *philos)
 {
-	int i;
+	int	i;
 	int	n;
 
 	n = philos[0].stuff->number_of_philos;
@@ -42,7 +54,7 @@ int	monitoring_1(t_philo *philos)
 
 int	monitoring_2(t_philo *philos)
 {
-	int i;
+	int	i;
 	int	cnt;
 	int	tmp;
 	int	n;
