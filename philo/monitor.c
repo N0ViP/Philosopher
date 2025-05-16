@@ -33,11 +33,11 @@ int	monitoring_1(t_philo *philos)
 		while (i < n)
 		{
 			if (!check_philos(philos, i))
-				return (1);
+				return (false);
 			i++;
 		}
 	}
-	return (0);
+	return (true);
 }
 
 int	monitoring_2(t_philo *philos)
@@ -45,26 +45,28 @@ int	monitoring_2(t_philo *philos)
 	int i;
 	int	cnt;
 	int	tmp;
+	int	n;
 
 	tmp = philos[0].stuff->number_of_times_each_philo_must_eat;
+	n = philos[0].stuff->number_of_philos;
 	while (true)
 	{
 		i = 0;
 		cnt = 0;
-		while (i < philos[i].stuff->number_of_philos)
+		while (i < n)
 		{
 			if (!check_philos(philos, i))
-				return (1);
+				return (false);
 			pthread_mutex_lock(&philos[i].eat_protection);
 			if (philos[i].eat >= tmp)
 				cnt++;
 			pthread_mutex_unlock(&philos[i].eat_protection);
 			i++;
 		}
-		if (cnt == philos[0].stuff->number_of_philos)
-			return (0);
+		if (cnt == n)
+			return (kill_philos(philos, philos[0].stuff->number_of_philos), 0);
 	}
-	return (0);
+	return (true);
 }
 
 void	*monitoring(void *arg)
