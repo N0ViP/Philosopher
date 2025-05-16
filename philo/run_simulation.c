@@ -9,7 +9,7 @@ void	thinking(t_philo *philo)
 	gettimeofday(&tv, NULL);
 	print_message(&philo->stuff->tv_start, &tv,
 		philo->first_fork + 1, "is thinking\n");
-	// ft_usleep(philo, 10);
+	ft_usleep(philo, ft_abs(philo->stuff->t_to_eat - philo->stuff->t_to_sleep) + 10);
 }
 
 void	sleeping(t_philo *philo)
@@ -92,8 +92,8 @@ void	*run_simulation(void *arg)
 	pthread_mutex_lock(&philo->time_protection);
 	gettimeofday(&philo->tv_beg, NULL);
 	pthread_mutex_unlock(&philo->time_protection);
-	if (philo->first_fork % 2)
-		ft_usleep(philo, philo->stuff->t_to_eat);
+	// if (philo->first_fork % 2)
+	// 	ft_usleep(philo, philo->stuff->t_to_eat);
 	while (is_alive(philo))
 	{
 		thinking(philo);

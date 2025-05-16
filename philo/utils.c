@@ -51,6 +51,13 @@ bool	is_alive(t_philo *philo)
 	return (alive);
 }
 
+int	ft_abs(int x)
+{
+	if (x < 0)
+		return (-x);
+	return (x);
+}
+
 void	ft_usleep(t_philo *philo, int time)
 {
 	struct timeval	tv_before;

@@ -45,6 +45,7 @@ typedef struct t_philo
 	pthread_mutex_t	time_protection;
 }	t_philo;
 
+int			ft_abs(int x);
 int			ft_atoi(char *s);
 void		ft_exit(char err);
 void		*monitoring(void *arg);
