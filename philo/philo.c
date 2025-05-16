@@ -14,12 +14,12 @@
 
 int	creat_monitor(t_philo *philos)
 {
-	pthread_t		monitor;
-	void			*reval;
+	pthread_t	monitor;
+	long long	*reval;
 
 	if (pthread_create(&monitor, NULL, monitoring, philos))
 		return (1);
-	if (pthread_join(monitor, &reval))
+	if (pthread_join(monitor, (void *)&reval))
 		return (1);
 	return ((long long) (long long *)reval);
 }
