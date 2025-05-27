@@ -22,13 +22,13 @@ void	one_philo(void)
 int	creat_monitor(t_philo *philos)
 {
 	pthread_t	monitor;
-	long long	*reval;
+	long long	reval;
 
 	if (pthread_create(&monitor, NULL, monitoring, philos))
-		return (1);
-	if (pthread_join(monitor, (void *)&reval))
-		return (1);
-	return ((long long) reval);
+		return (false);
+	if (pthread_join(monitor, (void **)reval))
+		return (false);
+	return (reval);
 }
 
 int	init_each_philo(t_philo *philo, t_stuff *stuff, int i)
@@ -40,41 +40,41 @@ int	init_each_philo(t_philo *philo, t_stuff *stuff, int i)
 	philo->second_fork = (i + 1) % (stuff->number_of_philos);
 	philo->tv_beg = (struct timeval){0};
 	if (pthread_mutex_init(&stuff->forks[i], NULL))
-		return (1);
+		return (false);
 	if (pthread_mutex_init(&philo->eat_protection, NULL))
-		return (1);
+		return (false);
 	if (pthread_mutex_init(&philo->time_protection, NULL))
-		return (1);
+		return (false);
 	if (pthread_mutex_init(&philo->alive_protection, NULL))
-		return (1);
-	return (0);
+		return (false);
+	return (true);
 }
 
-int	init_philos(t_stuff *stuff)
+bool	init_philos(t_stuff *stuff)
 {
 	t_philo			*philos;
+	bool			reval;
 	int				i;
 
 	i = 0;
-	stuff->philos = malloc(sizeof(pthread_t) * stuff->number_of_philos);
-	stuff->forks = malloc(sizeof(pthread_mutex_t) * stuff->number_of_philos);
-	philos = malloc(sizeof(t_philo) * stuff->number_of_philos);
+	if (!allocate_stuff(stuff, &philos))
+		return (false);
 	gettimeofday(&stuff->tv_start, NULL);
 	while (i < stuff->number_of_philos)
 	{
-		if (init_each_philo(&philos[i], stuff, i))
-			return (destroy_mutex(philos, i), free(philos), 1);
+		if (!init_each_philo(&philos[i], stuff, i))
+			return (destroy_mutex(philos, i), free(philos), false);
 		i++;
 	}
 	i = 0;
 	while (i < stuff->number_of_philos)
 	{
-		if (pthread_create(&stuff->philos[i], NULL, run_simulation, &philos[i]))
-			return (kill_philos(philos, i), free(philos), 1);
+		if (!pthread_create(&stuff->philos[i], NULL, run_simulation, &philos[i]))
+			return (kill_philos(philos, i), free(philos), false);
 		i++;
 	}
 	creat_monitor(philos);
-	return (free(philos), free(stuff->philos), free(stuff->forks), 0);
+	return (free(philos), free(stuff->philos), free(stuff->forks), true);
 }
 
 int	main(int ac, char *av[])
