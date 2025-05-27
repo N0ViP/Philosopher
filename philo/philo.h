@@ -28,7 +28,7 @@ typedef struct s_stuff
 	int				t_to_die;
 	int				t_to_eat;
 	int				t_to_sleep;
-	int				number_of_times_each_philo_must_eat;
+	int				must_eat;
 	struct timeval	tv_start;
 }	t_stuff;
 

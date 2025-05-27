@@ -12,6 +12,13 @@
 
 #include "philo.h"
 
+void	one_philo(void)
+{
+	printf("0\t1\tis thinking\n");
+	printf("0\t1\thas taken a fork\n");
+	printf("0\t1\tdied\n");
+}
+
 int	creat_monitor(t_philo *philos)
 {
 	pthread_t	monitor;
@@ -49,6 +56,8 @@ int	init_philos(t_stuff *stuff)
 	int				i;
 
 	i = 0;
+	stuff->philos = malloc(sizeof(pthread_t) * stuff->number_of_philos);
+	stuff->forks = malloc(sizeof(pthread_mutex_t) * stuff->number_of_philos);
 	philos = malloc(sizeof(t_philo) * stuff->number_of_philos);
 	gettimeofday(&stuff->tv_start, NULL);
 	while (i < stuff->number_of_philos)
@@ -65,8 +74,7 @@ int	init_philos(t_stuff *stuff)
 		i++;
 	}
 	creat_monitor(philos);
-	free(philos);
-	return (0);
+	return (free(philos), free(stuff->philos), free(stuff->forks), 0);
 }
 
 int	main(int ac, char *av[])
@@ -76,23 +84,24 @@ int	main(int ac, char *av[])
 
 	if (ac != 5 && ac != 6)
 		return (write(2, "Invalid arguments!\n", 19), 1);
-	stuff.number_of_times_each_philo_must_eat = 0;
+	stuff.must_eat = 0;
 	stuff.number_of_philos = ft_atoi(av[1]);
 	stuff.t_to_die = ft_atoi(av[2]);
 	stuff.t_to_eat = ft_atoi(av[3]);
 	stuff.t_to_sleep = ft_atoi(av[4]);
-	if (stuff.t_to_die <= 0
+	if (stuff.number_of_philos <= 0
+		|| stuff.t_to_die <= 0
 		|| stuff.t_to_eat <= 0
 		|| stuff.t_to_sleep <= 0)
 		return (write(2, "Invalid arguments!\n", 19), 1);
 	if (ac == 6)
 	{
-		stuff.number_of_times_each_philo_must_eat = ft_atoi(av[5]);
-		if (stuff.number_of_times_each_philo_must_eat <= 0)
+		stuff.must_eat = ft_atoi(av[5]);
+		if (stuff.must_eat <= 0)
 			return (0);
 	}
-	stuff.philos = malloc(sizeof(pthread_t) * stuff.number_of_philos);
-	stuff.forks = malloc(sizeof(pthread_mutex_t) * stuff.number_of_philos);
+	if (stuff.number_of_philos == 1)
+		return (one_philo(), 0);
 	reval = init_philos(&stuff);
-	return (free(stuff.philos), free(stuff.forks), reval);
+	return (reval);
 }

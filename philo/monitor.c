@@ -48,6 +48,7 @@ int	monitoring_1(t_philo *philos)
 				return (false);
 			i++;
 		}
+		usleep(500);
 	}
 	return (true);
 }
@@ -56,10 +57,8 @@ int	monitoring_2(t_philo *philos)
 {
 	int	i;
 	int	cnt;
-	int	tmp;
 	int	n;
 
-	tmp = philos[0].stuff->number_of_times_each_philo_must_eat;
 	n = philos[0].stuff->number_of_philos;
 	while (true)
 	{
@@ -70,11 +69,12 @@ int	monitoring_2(t_philo *philos)
 			if (!check_philos(philos, i))
 				return (false);
 			pthread_mutex_lock(&philos[i].eat_protection);
-			if (philos[i].eat >= tmp)
+			if (philos[i].eat >= philos[0].stuff->must_eat)
 				cnt++;
 			pthread_mutex_unlock(&philos[i].eat_protection);
 			i++;
 		}
+		usleep(500);
 		if (cnt == n)
 			return (kill_philos(philos, philos[0].stuff->number_of_philos), 0);
 	}
@@ -87,7 +87,7 @@ void	*monitoring(void *arg)
 	long long	reval;
 
 	philos = (t_philo *) arg;
-	if (!philos->stuff->number_of_times_each_philo_must_eat)
+	if (!philos->stuff->must_eat)
 		reval = monitoring_1(philos);
 	else
 		reval = monitoring_2(philos);
