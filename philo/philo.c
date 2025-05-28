@@ -65,14 +65,16 @@ static bool	init_philos(t_stuff *stuff)
 	while (i < stuff->number_of_philos)
 	{
 		if (!init_each_philo(&philos[i], stuff, i))
-			return (destroy_mutex(philos, i), free(philos), false);
+			return (destroy_mutex(philos, i), free(philos), \
+				free(stuff->philos), free(stuff->forks), false);
 		i++;
 	}
 	i = 0;
 	while (i < stuff->number_of_philos)
 	{
 		if (pthread_create(&stuff->philos[i], NULL, run_simulation, &philos[i]))
-			return (kill_philos(philos, i), free(philos), false);
+			return (kill_philos(philos, i), free(philos), \
+				free(stuff->philos), free(stuff->forks), false);
 		i++;
 	}
 	reval = creat_monitor(philos);
