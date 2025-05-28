@@ -53,6 +53,7 @@ bool		is_alive(t_philo *philo);
 void		*run_simulation(void *arg);
 int			take_forks(t_philo *philo);
 long long	time_ms(struct timeval *tv);
+bool		creat_monitor(t_philo *philos);
 void		put_fork(t_philo *philo, int fork);
 bool		take_fork(t_philo *philo, int fork);
 void		ft_usleep(t_philo *philo, int time);

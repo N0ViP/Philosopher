@@ -12,7 +12,7 @@
 
 #include "philo.h"
 
-int	check_philos(t_philo *philos, int i)
+bool	check_philos(t_philo *philos, int i)
 {
 	struct timeval	tv;
 	long long		time;
@@ -33,7 +33,7 @@ int	check_philos(t_philo *philos, int i)
 	return (true);
 }
 
-int	monitoring_1(t_philo *philos)
+bool	monitoring_1(t_philo *philos)
 {
 	int	i;
 	int	n;
@@ -53,7 +53,7 @@ int	monitoring_1(t_philo *philos)
 	return (true);
 }
 
-int	monitoring_2(t_philo *philos)
+bool	monitoring_2(t_philo *philos)
 {
 	int	i;
 	int	cnt;
@@ -76,7 +76,8 @@ int	monitoring_2(t_philo *philos)
 		}
 		usleep(500);
 		if (cnt == n)
-			return (kill_philos(philos, philos[0].stuff->number_of_philos), 0);
+			return (kill_philos(philos, philos[0].stuff->number_of_philos),
+				true);
 	}
 	return (true);
 }
@@ -91,5 +92,17 @@ void	*monitoring(void *arg)
 		reval = monitoring_1(philos);
 	else
 		reval = monitoring_2(philos);
-	return ((void *)(reval));
+	return ((void *)reval);
+}
+
+bool	creat_monitor(t_philo *philos)
+{
+	pthread_t	monitor;
+	bool		reval;
+
+	if (pthread_create(&monitor, NULL, monitoring, philos))
+		return (false);
+	if (pthread_join(monitor, (void *)&reval))
+		return (false);
+	return (reval);
 }

@@ -12,26 +12,14 @@
 
 #include "philo.h"
 
-void	one_philo(void)
+static void	one_philo(void)
 {
 	printf("0\t1\tis thinking\n");
 	printf("0\t1\thas taken a fork\n");
 	printf("0\t1\tdied\n");
 }
 
-int	creat_monitor(t_philo *philos)
-{
-	pthread_t	monitor;
-	long long	reval;
-
-	if (pthread_create(&monitor, NULL, monitoring, philos))
-		return (false);
-	if (pthread_join(monitor, (void **)reval))
-		return (false);
-	return (reval);
-}
-
-int	init_each_philo(t_philo *philo, t_stuff *stuff, int i)
+static bool	init_each_philo(t_philo *philo, t_stuff *stuff, int i)
 {
 	philo->stuff = stuff;
 	philo->alive = 1;
@@ -50,7 +38,21 @@ int	init_each_philo(t_philo *philo, t_stuff *stuff, int i)
 	return (true);
 }
 
-bool	init_philos(t_stuff *stuff)
+static bool	allocate_stuff(t_stuff *stuff, t_philo **philos)
+{
+	stuff->philos = malloc(sizeof(pthread_t) * stuff->number_of_philos);
+	if (!stuff->philos)
+		return (false);
+	stuff->forks = malloc(sizeof(pthread_mutex_t) * stuff->number_of_philos);
+	if (!stuff->forks)
+		return (free(stuff->philos), false);
+	*philos = malloc(sizeof(t_philo) * stuff->number_of_philos);
+	if (!*philos)
+		return (free(stuff->philos), free(stuff->forks), false);
+	return (true);
+}
+
+static bool	init_philos(t_stuff *stuff)
 {
 	t_philo			*philos;
 	bool			reval;
@@ -69,12 +71,12 @@ bool	init_philos(t_stuff *stuff)
 	i = 0;
 	while (i < stuff->number_of_philos)
 	{
-		if (!pthread_create(&stuff->philos[i], NULL, run_simulation, &philos[i]))
+		if (pthread_create(&stuff->philos[i], NULL, run_simulation, &philos[i]))
 			return (kill_philos(philos, i), free(philos), false);
 		i++;
 	}
-	creat_monitor(philos);
-	return (free(philos), free(stuff->philos), free(stuff->forks), true);
+	reval = creat_monitor(philos);
+	return (free(philos), free(stuff->philos), free(stuff->forks), reval);
 }
 
 int	main(int ac, char *av[])
@@ -103,5 +105,5 @@ int	main(int ac, char *av[])
 	if (stuff.number_of_philos == 1)
 		return (one_philo(), 0);
 	reval = init_philos(&stuff);
-	return (reval);
+	return (!reval);
 }
