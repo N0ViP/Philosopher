@@ -1,15 +1,49 @@
 #include "philo_bonus.h"
 
-int init_philos(t_stuff *stuff)
+static bool	init_each_philo(t_philo *philo, t_stuff *stuff, int i)
+{
+	philo->stuff = stuff;
+	philo->alive = true;
+	philo->eat = 0;
+	philo->tv_beg = (struct timeval){0};
+	if (pthread_mutex_init(&philo->eat_protection, NULL))
+		return (false);
+	if (pthread_mutex_init(&philo->time_protection, NULL))
+		return (false);
+	if (pthread_mutex_init(&philo->alive_protection, NULL))
+		return (false);
+	return (true);
+}
+
+static bool	allocate_stuff(t_stuff *stuff, t_philo **philos)
+{
+	stuff->philos = malloc(sizeof(pid_t) * stuff->number_of_philos);
+	if (!stuff->philos)
+		return (false);
+	stuff->forks = sem_open("/forks", O_CREAT | O_RDWR, 0777, stuff->number_of_philos);
+	if (!stuff->forks)
+		return (free(stuff->philos), false);
+    *philos = malloc(sizeof(t_philo) * stuff->number_of_philos);
+	if (!stuff->forks)
+		return (free(stuff->philos), sem_close(stuff->forks), sem_unlink(stuff->forks), false);
+	return (true);
+}
+
+static bool	init_philos(t_stuff *stuff)
 {
     t_philo			*philos;
 	int				i;
 
 	i = 0;
-    stuff->philos = malloc(sizeof(pid_t) * stuff->number_of_philos);
-	stuff->forks = sem_open("/forks", O_CREAT, 777, stuff->number_of_philos);
-    philos = malloc(sizeof(t_philo) * stuff->number_of_philos);
-
+    if (!allocate_stuff(stuff, &philos))
+		return (false);
+	gettimeofday(&stuff->tv_start, NULL);
+	while (i < stuff->number_of_philos)
+	{
+		if (!init_each_philo(&philos[i], stuff, i))
+			return (destroy_mutex(philos, i), free(philos), false);
+		i++;
+	}
 }
 
 int main(int ac, char **av)
@@ -38,5 +72,5 @@ int main(int ac, char **av)
 	if (stuff.number_of_philos == 1)
 		return (one_philo(), 0);
     reval = init_philos(&stuff);
-	return (reval);
+	return (!reval);
 }

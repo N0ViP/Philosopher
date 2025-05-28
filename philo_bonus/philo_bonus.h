@@ -24,13 +24,13 @@ typedef struct s_stuff
 
 typedef struct t_philo
 {
-	t_stuff			*stuff;
-	struct timeval	tv_beg;
-	bool			alive;
-	int				eat;
 	pthread_mutex_t	eat_protection;
 	pthread_mutex_t	alive_protection;
 	pthread_mutex_t	time_protection;
+	struct timeval	tv_beg;
+	t_stuff			*stuff;
+	bool			alive;
+	int				eat;
 }	t_philo;
 
 #endif

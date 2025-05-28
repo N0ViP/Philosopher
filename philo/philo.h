@@ -34,15 +34,15 @@ typedef struct s_stuff
 
 typedef struct t_philo
 {
-	t_stuff			*stuff;
-	struct timeval	tv_beg;
-	int				first_fork;
-	int				second_fork;
-	bool			alive;
-	int				eat;
 	pthread_mutex_t	eat_protection;
 	pthread_mutex_t	alive_protection;
 	pthread_mutex_t	time_protection;
+	struct timeval	tv_beg;
+	t_stuff			*stuff;
+	int				first_fork;
+	int				second_fork;
+	int				eat;
+	bool			alive;
 }	t_philo;
 
 int			ft_abs(int x);
