@@ -49,10 +49,12 @@ static bool	init_philos(t_stuff *stuff)
 	{
 		stuff->philos[i] = fork();
 		if (!stuff->philos[i])
+		{
+			run_sumilation();
 			break;
+		}
 		if (stuff->philos[i] == -1)
-			return (kill_philos(philos, i), free(philos), \
-				free(stuff->philos), free(stuff->forks), false);
+			return (kill_philos(philos, i), free(philos), free(stuff->philos), sem_close(stuff->forks), sem_unlink("/forks"), false);
 		i++;
 	}
 }
