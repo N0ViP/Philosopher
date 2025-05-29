@@ -35,7 +35,7 @@ void	kill_philos(t_philo *philos, int n_of_philos)
 		pthread_join(philos[i].stuff->philos[i], NULL);
 		i++;
 	}
-	destroy_mutex(philos, n_of_philos);
+	destroy_mutex(philos, philos->stuff->number_of_philos);
 }
 
 void	destroy_mutex(t_philo *philos, int n_of_philos)

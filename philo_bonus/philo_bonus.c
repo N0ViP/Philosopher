@@ -25,7 +25,7 @@ static bool	allocate_stuff(t_stuff *stuff, t_philo **philos)
 		return (free(stuff->philos), false);
     *philos = malloc(sizeof(t_philo) * stuff->number_of_philos);
 	if (!stuff->forks)
-		return (free(stuff->philos), sem_close(stuff->forks), sem_unlink(stuff->forks), false);
+		return (free(stuff->philos), sem_close(stuff->forks), sem_unlink("/forks"), false);
 	return (true);
 }
 
@@ -41,7 +41,18 @@ static bool	init_philos(t_stuff *stuff)
 	while (i < stuff->number_of_philos)
 	{
 		if (!init_each_philo(&philos[i], stuff, i))
-			return (destroy_mutex(philos, i), free(philos), false);
+			return (free(philos), free(stuff->philos), sem_close(stuff->forks), sem_unlink("/forks"), false);
+		i++;
+	}
+	i = 0;
+	while (i < stuff->number_of_philos)
+	{
+		stuff->philos[i] = fork();
+		if (!stuff->philos[i])
+			break;
+		if (stuff->philos[i] == -1)
+			return (kill_philos(philos, i), free(philos), \
+				free(stuff->philos), free(stuff->forks), false);
 		i++;
 	}
 }
