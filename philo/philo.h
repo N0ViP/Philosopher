@@ -47,7 +47,6 @@ typedef struct t_philo
 
 int			ft_abs(int x);
 int			ft_atoi(char *s);
-void		ft_exit(char err);
 void		*monitoring(void *arg);
 bool		is_alive(t_philo *philo);
 void		*run_simulation(void *arg);

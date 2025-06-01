@@ -9,17 +9,19 @@
 # include <sys/time.h>
 # include <semaphore.h>
 # include <fcntl.h>
+# include <sys/wait.h>
 
 typedef struct s_stuff
 {
-	pid_t			*philos;
+	struct timeval	tv_start;
 	sem_t			*forks;
+	pid_t			parent_pid;
+	pid_t			*philos;
 	int				number_of_philos;
 	int				t_to_die;
 	int				t_to_eat;
 	int				t_to_sleep;
 	int				must_eat;
-	struct timeval	tv_start;
 } t_stuff;
 
 typedef struct t_philo
@@ -29,8 +31,8 @@ typedef struct t_philo
 	pthread_mutex_t	time_protection;
 	struct timeval	tv_beg;
 	t_stuff			*stuff;
-	bool			alive;
 	int				eat;
+	bool			alive;
 }	t_philo;
 
 #endif
