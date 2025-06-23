@@ -14,7 +14,7 @@
 
 long long	time_ms(struct timeval *tv)
 {
-	return ((long long)(tv->tv_sec * 1000LL) + (tv->tv_usec / 1000));
+	return ((long long)(tv->tv_sec * 1000) + (tv->tv_usec / 1000));
 }
 
 void	kill_philos(t_philo *philos, int n_of_philos)

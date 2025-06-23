@@ -17,15 +17,15 @@ int	ft_atoi(char *s)
 	long	res;
 
 	if (!*s)
-		ft_exit(1);
+		return (-1);
 	res = 0;
 	while (*s >= 48 && *s <= 57)
 	{
 		res = (res << 3) + (res << 1) + (*s++ & 0X0f);
 		if (res > __INT32_MAX__)
-			ft_exit(1);
+			return (-1);
 	}
 	if (*s)
-		ft_exit(1);
+		return (-1);
 	return ((int) res);
 }
