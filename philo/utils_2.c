@@ -29,20 +29,16 @@ void	ft_usleep(t_philo *philo, int time)
 	}
 }
 
-bool	take_fork(t_philo *philo, int fork)
+void	take_fork(t_philo *philo, int fork)
 {
 	struct timeval	tv;
 
 	pthread_mutex_lock(&philo->stuff->forks[fork]);
 	gettimeofday(&tv, NULL);
 	if (!is_alive(philo))
-	{
-		pthread_mutex_unlock(&philo->stuff->forks[fork]);
-		return (false);
-	}
+		return ;
 	print_message(&philo->stuff->tv_start, &tv,
 		philo->first_fork + 1, "has taken a fork\n");
-	return (true);
 }
 
 void	put_fork(t_philo *philo, int fork)
@@ -50,21 +46,16 @@ void	put_fork(t_philo *philo, int fork)
 	pthread_mutex_unlock(&philo->stuff->forks[fork]);
 }
 
-int	take_forks(t_philo *philo)
+void	take_forks(t_philo *philo)
 {
 	if (philo->first_fork % 2)
 	{
-		if (!take_fork(philo, philo->first_fork))
-			return (false);
-		if (!take_fork(philo, philo->second_fork))
-			return (put_fork(philo, philo->first_fork), false);
+		take_fork(philo, philo->first_fork);
+		take_fork(philo, philo->second_fork);
 	}
 	else
 	{
-		if (!take_fork(philo, philo->second_fork))
-			return (false);
-		if (!take_fork(philo, philo->first_fork))
-			return (put_fork(philo, philo->second_fork), false);
+		take_fork(philo, philo->second_fork);
+		take_fork(philo, philo->first_fork);
 	}
-	return (true);
 }

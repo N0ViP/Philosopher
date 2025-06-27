@@ -12,30 +12,55 @@
 
 #include "philo.h"
 
-static void	one_philo(void)
+static void	one_philo(t_stuff *stuff)
 {
+	pthread_mutex_t	fork;
+
+	if (pthread_mutex_init(&fork, NULL))
+		return ;
 	printf("0\t1\tis thinking\n");
+	pthread_mutex_lock(&fork);
 	printf("0\t1\thas taken a fork\n");
+	usleep(1000 * stuff->t_to_die);
+	pthread_mutex_unlock(&fork);
 	printf("0\t1\tdied\n");
+}
+
+bool	init_mutex(pthread_mutex_t *mtx[4])
+{
+	int	i;
+
+	i = 0;
+	while (i < 4)
+	{
+		if (pthread_mutex_init(mtx[i], NULL))
+		{
+			while (--i <= 0)
+			{
+				pthread_mutex_destroy(mtx[i]);
+			}
+			return (false);
+		}
+		i++;
+	}
+	return (true);
 }
 
 static bool	init_each_philo(t_philo *philo, t_stuff *stuff, int i)
 {
+	pthread_mutex_t	*mtx[4];
+
 	philo->stuff = stuff;
 	philo->alive = 1;
 	philo->eat = 0;
 	philo->first_fork = (i);
 	philo->second_fork = (i + 1) % (stuff->number_of_philos);
 	philo->tv_beg = (struct timeval){0};
-	if (pthread_mutex_init(&stuff->forks[i], NULL))
-		return (false);
-	if (pthread_mutex_init(&philo->eat_protection, NULL))
-		return (false);
-	if (pthread_mutex_init(&philo->time_protection, NULL))
-		return (false);
-	if (pthread_mutex_init(&philo->alive_protection, NULL))
-		return (false);
-	return (true);
+	mtx[0] = &stuff->forks[i];
+	mtx[1] = &philo->eat_protection;
+	mtx[2] = &philo->time_protection;
+	mtx[3] = &philo->alive_protection;
+	return (init_mutex(mtx));
 }
 
 static bool	allocate_stuff(t_stuff *stuff, t_philo **philos)
@@ -49,36 +74,74 @@ static bool	allocate_stuff(t_stuff *stuff, t_philo **philos)
 	*philos = malloc(sizeof(t_philo) * stuff->number_of_philos);
 	if (!*philos)
 		return (free(stuff->philos), free(stuff->forks), false);
+	if (pthread_mutex_init(&stuff->lock, NULL))
+		return (free(stuff->philos), free(stuff->forks), free(philos), false);
+	pthread_mutex_lock(&stuff->lock);
 	return (true);
 }
 
-static bool	init_philos(t_stuff *stuff)
+static bool	create_philos(t_philo *philos)
 {
-	t_philo			*philos;
-	bool			reval;
-	int				i;
+	t_stuff	*stuff;
+	int		i;
 
 	i = 0;
-	if (!allocate_stuff(stuff, &philos))
-		return (false);
-	gettimeofday(&stuff->tv_start, NULL);
-	while (i < stuff->number_of_philos)
-	{
-		if (!init_each_philo(&philos[i], stuff, i))
-			return (destroy_mutex(philos, i), free(philos), \
-				free(stuff->philos), free(stuff->forks), false);
-		i++;
-	}
-	i = 0;
+	stuff = philos->stuff;
 	while (i < stuff->number_of_philos)
 	{
 		if (pthread_create(&stuff->philos[i], NULL, run_simulation, &philos[i]))
-			return (kill_philos(philos, i), free(philos), \
-				free(stuff->philos), free(stuff->forks), false);
+		{
+			pthread_mutex_unlock(&stuff->lock);
+			kill_philos(philos, i);
+			free(philos);
+			free(stuff->philos);
+			free(stuff->forks);
+			return (false);
+		}
 		i++;
 	}
-	reval = creat_monitor(philos);
-	return (free(philos), free(stuff->philos), free(stuff->forks), reval);
+	return (true);
+}
+
+bool	init_philo(t_philo *philos, t_stuff *stuff)
+{
+	int		i;
+
+	i = 0;
+	while (i < stuff->number_of_philos)
+	{
+		if (!init_each_philo(&philos[i], stuff, i))
+		{
+			pthread_mutex_unlock(&stuff->lock);
+			destroy_mutex(philos, i);
+			free(philos);
+			free(stuff->philos);
+			free(stuff->forks);
+			return (false);
+		}
+		i++;
+	}
+	return (true);
+}
+
+static bool	alloc_philos(t_stuff *stuff)
+{
+	t_philo			*philos;
+	bool			reval;
+
+	if (!allocate_stuff(stuff, &philos))
+		return (false);
+	gettimeofday(&stuff->tv_start, NULL);
+	if (!init_philo(philos, stuff))
+		return (false);
+	if (!create_philos(philos))
+		return (false);
+	pthread_mutex_unlock(&stuff->lock);
+	reval = monitoring(philos);
+	free(philos);
+	free(stuff->philos);
+	free(stuff->forks);
+	return (reval);
 }
 
 int	main(int ac, char *av[])
@@ -105,7 +168,7 @@ int	main(int ac, char *av[])
 			return (0);
 	}
 	if (stuff.number_of_philos == 1)
-		return (one_philo(), 0);
-	reval = init_philos(&stuff);
+		return (one_philo(&stuff), 0);
+	reval = alloc_philos(&stuff);
 	return (!reval);
 }

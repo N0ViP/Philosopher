@@ -47,8 +47,7 @@ void	sleeping(t_philo *philo)
 
 void	eating(t_philo *philo)
 {
-	if (!take_forks(philo))
-		return ;
+	take_forks(philo);
 	pthread_mutex_lock(&philo->time_protection);
 	gettimeofday(&philo->tv_beg, NULL);
 	pthread_mutex_unlock(&philo->time_protection);
@@ -73,6 +72,8 @@ void	*run_simulation(void *arg)
 	t_philo			*philo;
 
 	philo = (t_philo *) arg;
+	pthread_mutex_lock(&philo->stuff->lock);
+	pthread_mutex_unlock(&philo->stuff->lock);
 	pthread_mutex_lock(&philo->time_protection);
 	gettimeofday(&philo->tv_beg, NULL);
 	pthread_mutex_unlock(&philo->time_protection);

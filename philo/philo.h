@@ -24,12 +24,13 @@ typedef struct s_stuff
 {
 	pthread_t		*philos;
 	pthread_mutex_t	*forks;
+	pthread_mutex_t	lock;
+	struct timeval	tv_start;
 	int				number_of_philos;
 	int				t_to_die;
 	int				t_to_eat;
 	int				t_to_sleep;
 	int				must_eat;
-	struct timeval	tv_start;
 }	t_stuff;
 
 typedef struct t_philo
@@ -50,11 +51,10 @@ int			ft_atoi(char *s);
 void		*monitoring(void *arg);
 bool		is_alive(t_philo *philo);
 void		*run_simulation(void *arg);
-int			take_forks(t_philo *philo);
+void		take_forks(t_philo *philo);
 long long	time_ms(struct timeval *tv);
-bool		creat_monitor(t_philo *philos);
 void		put_fork(t_philo *philo, int fork);
-bool		take_fork(t_philo *philo, int fork);
+void		take_fork(t_philo *philo, int fork);
 void		ft_usleep(t_philo *philo, int time);
 void		kill_philos(t_philo *philos, int n_of_philos);
 void		destroy_mutex(t_philo *philos, int n_of_philos);

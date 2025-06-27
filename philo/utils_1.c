@@ -43,6 +43,7 @@ void	destroy_mutex(t_philo *philos, int n_of_philos)
 	int	i;
 
 	i = 0;
+	pthread_mutex_destroy(&philos[0].stuff->lock);
 	while (i < n_of_philos)
 	{
 		pthread_mutex_destroy(&philos[i].eat_protection);

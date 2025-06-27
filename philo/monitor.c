@@ -94,15 +94,3 @@ void	*monitoring(void *arg)
 		reval = monitoring_2(philos);
 	return ((void *)reval);
 }
-
-bool	creat_monitor(t_philo *philos)
-{
-	pthread_t	monitor;
-	bool		reval;
-
-	if (pthread_create(&monitor, NULL, monitoring, philos))
-		return (false);
-	if (pthread_join(monitor, (void *)&reval))
-		return (false);
-	return (reval);
-}
