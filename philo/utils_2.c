@@ -37,8 +37,8 @@ void	take_fork(t_philo *philo, int fork)
 	gettimeofday(&tv, NULL);
 	if (!is_alive(philo))
 		return ;
-	print_message(&philo->stuff->tv_start, &tv,
-		philo->first_fork + 1, "has taken a fork\n");
+	printf("%lld\t%d\thas taken a fork\n", time_ms(&tv) - \
+		time_ms(&philo->stuff->tv_start), philo->first_fork + 1);
 }
 
 void	put_fork(t_philo *philo, int fork)

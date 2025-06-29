@@ -50,15 +50,17 @@ int			ft_abs(int x);
 int			ft_atoi(char *s);
 void		*monitoring(void *arg);
 bool		is_alive(t_philo *philo);
+bool		one_philo(t_stuff *stuff);
 void		*run_simulation(void *arg);
 void		take_forks(t_philo *philo);
 long long	time_ms(struct timeval *tv);
 void		put_fork(t_philo *philo, int fork);
+bool		init_mutex(pthread_mutex_t *mtx[4]);
 void		take_fork(t_philo *philo, int fork);
 void		ft_usleep(t_philo *philo, int time);
+bool		init_philo(t_philo *philos, t_stuff *stuff);
 void		kill_philos(t_philo *philos, int n_of_philos);
 void		destroy_mutex(t_philo *philos, int n_of_philos);
-void		print_message(struct timeval *tv_start, struct timeval *tv,
-				int id, char *message);
+bool		init_each_philo(t_philo *philo, t_stuff *stuff, int i);
 
 #endif

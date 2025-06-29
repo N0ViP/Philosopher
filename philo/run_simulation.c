@@ -21,8 +21,8 @@ void	thinking(t_philo *philo)
 	if (!is_alive(philo))
 		return ;
 	gettimeofday(&tv, NULL);
-	print_message(&philo->stuff->tv_start, &tv,
-		philo->first_fork + 1, "is thinking\n");
+	printf("%lld\t%d\tis thinking\n", time_ms(&tv) - \
+		time_ms(&philo->stuff->tv_start), philo->first_fork + 1);
 	time = ft_abs(philo->stuff->t_to_eat - philo->stuff->t_to_sleep) + 10;
 	t_to_eat_sleep = philo->stuff->t_to_eat + philo->stuff->t_to_sleep;
 	if (t_to_eat_sleep < philo->stuff->t_to_die)
@@ -40,8 +40,8 @@ void	sleeping(t_philo *philo)
 	if (!is_alive(philo))
 		return ;
 	gettimeofday(&tv, NULL);
-	print_message(&philo->stuff->tv_start, &tv,
-		philo->first_fork + 1, "is sleeping\n");
+	printf("%lld\t%d\tis slepping\n", time_ms(&tv) - \
+		time_ms(&philo->stuff->tv_start), philo->first_fork + 1);
 	ft_usleep(philo, philo->stuff->t_to_sleep);
 }
 
@@ -57,8 +57,8 @@ void	eating(t_philo *philo)
 		put_fork(philo, philo->second_fork);
 		return ;
 	}
-	print_message(&philo->stuff->tv_start, &philo->tv_beg,
-		philo->first_fork + 1, "is eating\n");
+	printf("%lld\t%d\tis thinking\n", time_ms(&philo->tv_beg) - \
+		time_ms(&philo->stuff->tv_start), philo->first_fork + 1);
 	ft_usleep(philo, philo->stuff->t_to_eat);
 	put_fork(philo, philo->first_fork);
 	put_fork(philo, philo->second_fork);

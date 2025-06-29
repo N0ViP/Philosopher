@@ -27,7 +27,8 @@ bool	check_philos(t_philo *philos, int i)
 	{
 		kill_philos(philos, philos[i].stuff->number_of_philos);
 		gettimeofday(&tv, NULL);
-		print_message(&philos[i].stuff->tv_start, &tv, i + 1, "died\n");
+		printf("%lld\t%d\tdied\n", time_ms(&tv) - \
+			time_ms(&philos[i].stuff->tv_start), i + 1);
 		return (false);
 	}
 	return (true);
