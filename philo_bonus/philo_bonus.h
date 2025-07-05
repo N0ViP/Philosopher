@@ -15,8 +15,10 @@ typedef struct s_stuff
 {
 	struct timeval	tv_start;
 	sem_t			*forks;
-	pid_t			parent_pid;
+	sem_t			*lock;
 	pid_t			*philos;
+	pid_t			philo_id;
+	pid_t			p_pid;
 	int				number_of_philos;
 	int				t_to_die;
 	int				t_to_eat;
@@ -26,9 +28,6 @@ typedef struct s_stuff
 
 typedef struct t_philo
 {
-	pthread_mutex_t	eat_protection;
-	pthread_mutex_t	alive_protection;
-	pthread_mutex_t	time_protection;
 	struct timeval	tv_beg;
 	t_stuff			*stuff;
 	int				eat;
