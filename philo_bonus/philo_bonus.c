@@ -1,98 +1,29 @@
 #include "philo_bonus.h"
 
-static void	one_philo(void)
+void one_philo(int t_to_die)
 {
-	printf("0\t1\tis thinking\n");
-	printf("0\t1\thas taken a fork\n");
-	printf("0\t1\tdied\n");
-}
+	pid_t	pid;
+	sem_t	*sem;
+	int		ex_status;
 
-static bool	init_each_philo(t_philo *philo, t_stuff *stuff, int i)
-{
-	philo->stuff = stuff;
-	philo->alive = true;
-	philo->eat = 0;
-	philo->tv_beg = (struct timeval){0};
-	if (pthread_mutex_init(&philo->eat_protection, NULL))
-		return (false);
-	if (pthread_mutex_init(&philo->time_protection, NULL))
-		return (false);
-	if (pthread_mutex_init(&philo->alive_protection, NULL))
-		return (false);
-	return (true);
-}
-
-static bool	allocate_stuff(t_stuff *stuff, t_philo **philos)
-{
-	stuff->philos = malloc(sizeof(pid_t) * stuff->number_of_philos);
-	if (!stuff->philos)
-		return (false);
-	stuff->forks = sem_open("/forks", O_CREAT, 0777, stuff->number_of_philos);
-	if (!stuff->forks)
-		return (free(stuff->philos), false);
-    *philos = malloc(sizeof(t_philo) * stuff->number_of_philos);
-	if (!stuff->forks)
-		return (free(stuff->philos), sem_close(stuff->forks), sem_unlink("/forks"), false);
-	return (true);
-}
-
-void	destroy_mutex(t_philo *philos, int n_of_philos)
-{
-	int	i;
-
-	i = 0;
-	while (i < n_of_philos)
+	unlink("/forks");
+	sem = sem_open("/forks", O_CREAT, 0777);
+	pid = fork();
+	if (pid == 0)
 	{
-		pthread_mutex_destroy(&philos[i].eat_protection);
-		pthread_mutex_destroy(&philos[i].alive_protection);
-		pthread_mutex_destroy(&philos[i].time_protection);
-		i++;
+		printf("%d\t%d\tis thinking\n", 1, 0);
+		printf("%d\t%d\thas taken a fork\n", 1, 0);
+		usleep(1000 * t_to_die);
+		printf("%d\t%d\tdied\n", 1, t_to_die);
 	}
+	else
+	{
+		waitpid(pid, ex_status, 0);
+	}
+	exit (0);
 }
 
-static bool	init_philos(t_stuff *stuff)
-{
-    t_philo			*philos;
-	int				i;
-	int				reval;
-	int				status;
 
-	i = 0;
-	if (!allocate_stuff(stuff, &philos))
-		return (false);
-	gettimeofday(&stuff->tv_start, NULL);
-	while (i < stuff->number_of_philos)
-	{
-		if (!init_each_philo(&philos[i], stuff, i))
-			return (destroy_mutex(philos, i), free(philos), free(stuff->philos), sem_close(stuff->forks), sem_unlink("/forks"), false);
-		i++;
-	}
-	i = 0;
-	while (i < stuff->number_of_philos)
-	{
-		stuff->philos[i] = fork();
-		if (!stuff->philos[i])
-		{
-			run_sumilation(&philos[i]);
-			break;
-		}
-		if (stuff->philos[i] == -1)
-			return (kill_philos(philos, i), free(philos), free(stuff->philos), sem_close(stuff->forks), sem_unlink("/forks"), false);
-		i++;
-	}
-	reval = true;
-	if (stuff->parent_pid == getpid())
-	{
-		i = 0;
-		while (i < stuff->number_of_philos)
-		{
-			waitpid(stuff->philos[i], &status, 0);
-			if (!status)
-				reval = false;
-		}
-	}
-	return (kill_philos(philos, i), free(philos), free(stuff->philos), sem_close(stuff->forks), sem_unlink("/forks"), reval);
-}
 
 int main(int ac, char **av)
 {
@@ -119,7 +50,7 @@ int main(int ac, char **av)
 			return (write(2, "Invalid arguments!\n", 19), 1);
 	}
 	if (stuff.number_of_philos == 1)
-		return (one_philo(), 0);
+		one_philo(stuff.t_to_die);
     reval = init_philos(&stuff);
 	return (!reval);
 }

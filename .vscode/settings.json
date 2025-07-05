@@ -1,5 +1,8 @@
 {
     "files.associations": {
-        "philo.h": "c"
+        "philo.h": "c",
+        "semaphore.h": "c",
+        "types.h": "c",
+        "limits.h": "c"
     }
 }
