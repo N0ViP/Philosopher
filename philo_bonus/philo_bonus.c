@@ -139,10 +139,7 @@ void	start(void *arg)
 
 	stuff = (t_stuff *) arg;
 	sem_wait(stuff->lock);
-	pthread_mutex_lock(&stuff->time_protection);
-	gettimeofday(&stuff->tv_beg, NULL);
-	pthread_mutex_unlock(&stuff->time_protection);
-	while ()
+	while (is_alive(stuff))
 	{
 		thinking(stuff);
 		eating(stuff);
@@ -206,7 +203,7 @@ void	init_stuff(t_stuff *stuff, int ac, char *av[])
 {
 	if (ac != 5 && ac != 6)
 		return (write(2, "Invalid arguments!\n", 19), 1);
-	stuff->al
+	stuff->alive = true;
 	stuff->must_eat = 0;
 	stuff->number_of_philos = ft_atoi(av[1]);
 	stuff->t_to_die = ft_atoi(av[2]);

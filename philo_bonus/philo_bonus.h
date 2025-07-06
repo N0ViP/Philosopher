@@ -16,9 +16,7 @@ typedef struct s_stuff
 {
 	struct timeval	tv_start;
 	struct timeval	tv_beg;
-	pthread_mutex_t	alive_protection;
-	pthread_mutex_t	eat_protection;
-	pthread_mutex_t	time_protection;
+	sem_t			*forks;
 	sem_t			*forks;
 	sem_t			*lock;
 	pid_t			*philos;
