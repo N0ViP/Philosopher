@@ -9,25 +9,43 @@ void	clean_up(t_stuff *stuff)
 	free(stuff->philos);
 }
 
-void one_philo(int t_to_die)
+void	clean_sems(t_stuff *stuff)
+{
+	sem_close(stuff->sem_alive_name);
+	sem_close(stuff->sem_eat_name);
+	sem_close(stuff->sem_time_name);
+	sem_unlink(stuff->sem_alive_name);
+	sem_unlink(stuff->sem_eat_name);
+	sem_unlink(stuff->sem_time_name);
+	free(stuff->sem_alive_name);
+	free(stuff->sem_eat_name);
+	free(stuff->sem_time_name);
+	clean_up(stuff);
+}
+
+void	one_philo(int t_to_die)
 {
 	pid_t	pid;
 	sem_t	*sem;
 	int		ex_status;
 
 	unlink("/forks");
-	sem = sem_open("/forks", O_CREAT, 0777);
+	sem = sem_open("/forks", O_CREAT, 0777, 1);
 	pid = fork();
 	if (pid == 0)
 	{
 		printf("%d\t%d\tis thinking\n", 1, 0);
+		sem_wait(sem);
 		printf("%d\t%d\thas taken a fork\n", 1, 0);
 		usleep(1000 * t_to_die);
 		printf("%d\t%d\tdied\n", 1, t_to_die);
+		sem_close(sem);
 	}
 	else
 	{
 		waitpid(pid, ex_status, 0);
+		sem_close(sem);
+		unlink("/forks");
 	}
 	exit(EXIT_SUCCESS);
 }
@@ -80,7 +98,7 @@ void	run_philos(t_stuff *stuff)
 	{
 		if (getpid() != stuff->p_pid)
 			break ;
-		stuff->philo_id = i;
+		stuff->philo_id = i + 1;
 		stuff->philos[i] = forks();
 		if (stuff->philos[i] == -1)
 		{
@@ -133,6 +151,11 @@ void	wait_child(t_stuff *stuff)
 	}
 }
 
+bool	is_alive(sutff)
+{
+	
+}
+
 void	start(void *arg)
 {
 	t_stuff	*stuff;
@@ -146,46 +169,60 @@ void	start(void *arg)
 		sleeping(stuff);
 	}
 }
-
+///???????
 void	monitor(t_stuff *stuff)
 {
 	;
 }
 
-void init_mutexs(t_stuff *stuff)
+void	open_semaphores(t_stuff *stuff)
 {
-	if (pthread_mutex_init(&stuff->alive_protection, NULL))
+	sem_unlink(stuff->sem_alive_name);
+	sem_unlink(stuff->sem_eat_name);
+	sem_unlink(stuff->sem_time_name);
+	stuff->alive_protection = sem_open(stuff->sem_alive_name, O_CREAT,  0777, 1);
+	stuff->eat_protection = sem_open(stuff->sem_eat_name, O_CREAT,  0777, 1);
+	stuff->time_protection = sem_open(stuff->sem_time_name, O_CREAT,  0777, 1);
+	if (!stuff->alive_protection
+		|| !stuff->eat_protection
+		|| !stuff->time_protection)
 	{
-		clean_up(stuff);
-		exit(EXIT_FAILURE);
-	}
-	if (pthread_mutex_init(&stuff->eat_protection, NULL))
-	{
-		pthread_mutex_destroy(&stuff->alive_protection);
-		clean_up(stuff);
-		exit(EXIT_FAILURE);
-	}
-	if (pthread_mutex_init(&stuff->time_protection, NULL))
-	{
-		pthread_mutex_destroy(&stuff->alive_protection);
-		pthread_mutex_destroy(&stuff->eat_protection);
-		clean_up(stuff);
+		clean_sems(stuff);
 		exit(EXIT_FAILURE);
 	}
 }
 
+void	init_semaphores(t_stuff *stuff)
+{
+	stuff->sem_alive_name = ft_strjoin("alive_", ft_itoa(stuff->philo_id));
+	stuff->sem_eat_name = ft_strjoin("eat_", ft_itoa(stuff->philo_id));
+	stuff->sem_time_name = ft_strjoin("time_", ft_itoa(stuff->philo_id));
+	if (!stuff->sem_alive_name
+		|| !stuff->sem_eat_name
+		|| !stuff->sem_time_name)
+	{
+		free(stuff->sem_alive_name);
+		free(stuff->sem_eat_name);
+		free(stuff->sem_time_name);
+		clean_up(stuff);
+		exit (EXIT_FAILURE);
+	}
+	open_semaphores(stuff);
+}
+
 void	run_simulation(t_stuff *stuff)
 {
-	 pthread_t	*monitor;
 	 pthread_t	*philo;
 
 	gettimeofday(&stuff->tv_start, NULL);
 	gettimeofday(&stuff->tv_beg, NULL);
-	init_mutexs(stuff);
-	 if (pthread_create(philo, NULL, start, stuff))
-	 	exit(EXIT_FAILURE);
-	if (pthread_create(philo, NULL, monitor, stuff))
+	init_semaphores(stuff);
+	if (pthread_create(philo, NULL, start, stuff))
+	{
+		clean_sems(stuff);
 		exit(EXIT_FAILURE);
+	}
+	monitor(stuff);
 }
 
 void	init_philos(t_stuff *stuff)
