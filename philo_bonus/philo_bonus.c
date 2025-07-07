@@ -1,5 +1,43 @@
 #include "philo_bonus.h"
 
+long long	time_ms(struct timeval *tv)
+{
+	return ((long long)(tv->tv_sec * 1000) + (tv->tv_usec / 1000));
+}
+
+int	ft_abs(int x)
+{
+	if (x < 0)
+		return (-x);
+	return (x);
+}
+
+bool	is_alive(t_stuff *stuff)
+{
+	bool	alive;
+	sem_wait(stuff->alive_protection);
+	alive = stuff->alive;
+	sem_post(stuff->alive_protection);
+	return (alive);
+}
+
+void	ft_usleep(t_stuff *stuff, int time)
+{
+	struct timeval	tv_before;
+	struct timeval	tv_after;
+
+	gettimeofday(&tv_before, NULL);
+	while (true)
+	{
+		if (!is_alive(stuff))
+			return ;
+		gettimeofday(&tv_after, NULL);
+		if (time_ms(&tv_after) - time_ms(&tv_before) >= time)
+			break ;
+		usleep(500);
+	}
+}
+
 void	clean_up(t_stuff *stuff)
 {
 	sem_close(stuff->lock);
@@ -151,9 +189,37 @@ void	wait_child(t_stuff *stuff)
 	}
 }
 
-bool	is_alive(sutff)
+void	thinking(t_stuff *stuff)
 {
-	
+	struct timeval	tv;
+	int				time;
+	int				t_to_eat_sleep;
+
+	if (!is_alive(stuff))
+		return ;
+	gettimeofday(&tv, NULL);
+	printf("%lld\t%d\tis thinking\n", time_ms(&tv) - \
+		time_ms(&stuff->tv_start), stuff->philo_id);
+	time = ft_abs(stuff->t_to_eat - stuff->t_to_sleep) + 10;
+	t_to_eat_sleep = stuff->t_to_eat + stuff->t_to_sleep;
+	if (t_to_eat_sleep < stuff->t_to_die)
+	{
+		while (time + t_to_eat_sleep >= stuff->t_to_die)
+			time /= 2;
+	}
+	ft_usleep(stuff, time);
+}
+
+void	sleeping(t_stuff *stuff)
+{
+	struct timeval	tv;
+
+	if (!is_alive(stuff))
+		return ;
+	gettimeofday(&tv, NULL);
+	printf("%lld\t%d\tis slepping\n", time_ms(&tv) - \
+		time_ms(&stuff->tv_start), stuff->philo_id);
+	ft_usleep(stuff, stuff->t_to_sleep);
 }
 
 void	start(void *arg)

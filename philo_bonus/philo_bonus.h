@@ -20,13 +20,14 @@ typedef struct s_stuff
 	sem_t			*time_protection;
 	sem_t			*alive_protection;
 	sem_t			*eat_protection;
-	char			*sem_time_name;
-	char			*sem_eat_name;
-	char			*sem_alive_name;
 	sem_t			*lock;
 	pid_t			*philos;
 	pid_t			philo_id;
 	pid_t			p_pid;
+	char			*sem_time_name;
+	char			*sem_eat_name;
+	char			*sem_alive_name;
+	bool			alive;
 	int				number_of_philos;
 	int				t_to_die;
 	int				t_to_eat;
