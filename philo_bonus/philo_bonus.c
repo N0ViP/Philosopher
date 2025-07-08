@@ -265,9 +265,9 @@ void	start(void *arg)
 
 	stuff = (t_stuff *) arg;
 	sem_wait(stuff->lock);
-	sem_wait(&stuff->time_protection);
+	sem_wait(&stuff->sem_protection);
 	gettimeofday(&stuff->tv_beg, NULL);
-	sem_post(&stuff->time_protection);
+	sem_post(&stuff->sem_protection);
 	if ((stuff->philo_id % 2))
 		ft_usleep(stuff, stuff->t_to_eat);
 	while (is_alive(stuff))
