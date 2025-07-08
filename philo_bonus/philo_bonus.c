@@ -15,9 +15,9 @@ int	ft_abs(int x)
 bool	is_alive(t_stuff *stuff)
 {
 	bool	alive;
-	sem_wait(stuff->alive_protection);
+	sem_wait(stuff->sem_protection);
 	alive = stuff->alive;
-	sem_post(stuff->alive_protection);
+	sem_post(stuff->sem_protection);
 	return (alive);
 }
 
@@ -49,15 +49,9 @@ void	clean_up(t_stuff *stuff)
 
 void	clean_sems(t_stuff *stuff)
 {
-	sem_close(stuff->sem_alive_name);
-	sem_close(stuff->sem_eat_name);
-	sem_close(stuff->sem_time_name);
-	sem_unlink(stuff->sem_alive_name);
-	sem_unlink(stuff->sem_eat_name);
-	sem_unlink(stuff->sem_time_name);
-	free(stuff->sem_alive_name);
-	free(stuff->sem_eat_name);
-	free(stuff->sem_time_name);
+	sem_close(stuff->sem_protection);
+	sem_unlink(stuff->sem_protection_name);
+	free(stuff->sem_protection_name);
 	clean_up(stuff);
 }
 
@@ -222,12 +216,60 @@ void	sleeping(t_stuff *stuff)
 	ft_usleep(stuff, stuff->t_to_sleep);
 }
 
+void	take_fork(t_stuff *stuff)
+{
+	struct timeval	tv;
+
+	sem_wait(stuff->forks);
+	if (!is_alive(stuff))
+		return ;
+	printf("%lld\t%d\thas taken a fork\n", time_ms(&tv) - \
+		time_ms(&stuff->tv_start), stuff->philo_id);
+}
+
+void	take_forks(t_stuff *stuff)
+{
+	take_fork(stuff);
+	take_fork(stuff);
+}
+
+void	put_forks(t_stuff *stuff)
+{
+	sem_post(stuff->forks);
+	sem_post(stuff->forks);
+}
+
+void	eating(t_stuff *stuff)
+{
+	take_forks(stuff);
+	if (!is_alive(stuff))
+	{
+		put_forks(stuff);
+		return ;
+	}
+	sem_wait(stuff->sem_protection);
+	gettimeofday(&stuff->tv_beg, NULL);
+	sem_post(stuff->sem_protection);
+	printf("%lld\t%d\tis thinking\n", time_ms(&stuff->tv_beg) - \
+		time_ms(&stuff->tv_start), stuff->philo_id);
+	ft_usleep(stuff, stuff->t_to_eat);
+	put_forks(stuff);
+	sem_wait(&stuff->sem_protection);
+	stuff->n_eat++;
+	sem_post(&stuff->sem_protection);
+}
+
 void	start(void *arg)
 {
 	t_stuff	*stuff;
 
 	stuff = (t_stuff *) arg;
 	sem_wait(stuff->lock);
+	sem_wait(&stuff->time_protection);
+	gettimeofday(&stuff->tv_beg, NULL);
+	sem_post(&stuff->time_protection);
+	if ((stuff->philo_id % 2))
+		ft_usleep(stuff, stuff->t_to_eat);
 	while (is_alive(stuff))
 	{
 		thinking(stuff);
@@ -243,15 +285,9 @@ void	monitor(t_stuff *stuff)
 
 void	open_semaphores(t_stuff *stuff)
 {
-	sem_unlink(stuff->sem_alive_name);
-	sem_unlink(stuff->sem_eat_name);
-	sem_unlink(stuff->sem_time_name);
-	stuff->alive_protection = sem_open(stuff->sem_alive_name, O_CREAT,  0777, 1);
-	stuff->eat_protection = sem_open(stuff->sem_eat_name, O_CREAT,  0777, 1);
-	stuff->time_protection = sem_open(stuff->sem_time_name, O_CREAT,  0777, 1);
-	if (!stuff->alive_protection
-		|| !stuff->eat_protection
-		|| !stuff->time_protection)
+	sem_unlink(stuff->sem_protection_name);
+	stuff->sem_protection = sem_open(stuff->sem_protection_name, O_CREAT,  0777, 1);
+	if (!stuff->sem_protection)
 	{
 		clean_sems(stuff);
 		exit(EXIT_FAILURE);
@@ -260,16 +296,10 @@ void	open_semaphores(t_stuff *stuff)
 
 void	init_semaphores(t_stuff *stuff)
 {
-	stuff->sem_alive_name = ft_strjoin("alive_", ft_itoa(stuff->philo_id));
-	stuff->sem_eat_name = ft_strjoin("eat_", ft_itoa(stuff->philo_id));
-	stuff->sem_time_name = ft_strjoin("time_", ft_itoa(stuff->philo_id));
-	if (!stuff->sem_alive_name
-		|| !stuff->sem_eat_name
-		|| !stuff->sem_time_name)
+	stuff->sem_protection_name = ft_strjoin("sem_protection_", ft_itoa(stuff->philo_id));
+	if (!stuff->sem_protection_name)
 	{
-		free(stuff->sem_alive_name);
-		free(stuff->sem_eat_name);
-		free(stuff->sem_time_name);
+		free(stuff->sem_protection_name);
 		clean_up(stuff);
 		exit (EXIT_FAILURE);
 	}
@@ -280,8 +310,7 @@ void	run_simulation(t_stuff *stuff)
 {
 	 pthread_t	*philo;
 
-	gettimeofday(&stuff->tv_start, NULL);
-	gettimeofday(&stuff->tv_beg, NULL);
+	init_time(stuff);
 	init_semaphores(stuff);
 	if (pthread_create(philo, NULL, start, stuff))
 	{
@@ -294,7 +323,6 @@ void	run_simulation(t_stuff *stuff)
 void	init_philos(t_stuff *stuff)
 {
 	allocate_philos_forks(stuff);
-	init_time(stuff);
 	run_philos(stuff);
 	if (stuff->p_pid != getpid())
 		run_simulation(stuff);
@@ -329,6 +357,8 @@ int main(int ac, char **av)
 {
     t_stuff	stuff;
 	int		reval;
+
+	stuff = (t_stuff) {0};
 	init_stuff(&stuff, ac, av);
 	if (stuff.number_of_philos == 1)
 		one_philo(stuff.t_to_die);
