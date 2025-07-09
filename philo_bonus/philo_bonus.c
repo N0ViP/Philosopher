@@ -1,5 +1,23 @@
 #include "philo_bonus.h"
 
+int	ft_atoi(char *s)
+{
+	long	res;
+
+	if (!*s)
+		return (-1);
+	res = 0;
+	while (*s >= 48 && *s <= 57)
+	{
+		res = (res << 3) + (res << 1) + (*s++ & 0X0f);
+		if (res > INT_MAX)
+			return (-1);
+	}
+	if (*s)
+		return (-1);
+	return ((int) res);
+}
+
 long long	time_ms(struct timeval *tv)
 {
 	return ((long long)(tv->tv_sec * 1000) + (tv->tv_usec / 1000));
@@ -76,7 +94,7 @@ void	one_philo(int t_to_die)
 	}
 	else
 	{
-		waitpid(pid, ex_status, 0);
+		waitpid(pid, &ex_status, 0);
 		sem_close(sem);
 		unlink("/forks");
 	}
@@ -131,7 +149,7 @@ void	run_philos(t_stuff *stuff)
 		if (getpid() != stuff->p_pid)
 			break ;
 		stuff->philo_id = i + 1;
-		stuff->philos[i] = forks();
+		stuff->philos[i] = fork();
 		if (stuff->philos[i] == -1)
 		{
 			kill_philos(stuff, i);
@@ -142,7 +160,7 @@ void	run_philos(t_stuff *stuff)
 	i = 0;
 	if (getpid() == stuff->p_pid)
 	{
-		while (i < stuff->philos)
+		while (i < stuff->number_of_philos)
 		{
 			sem_post(stuff->lock);
 			i++;
@@ -233,6 +251,7 @@ void	take_fork(t_stuff *stuff)
 	sem_wait(stuff->forks);
 	if (!is_alive(stuff))
 		return ;
+	gettimeofday(&tv, NULL);
 	printf("%lld\t%d\thas taken a fork\n", time_ms(&tv) - \
 		time_ms(&stuff->tv_start), stuff->philo_id);
 }
@@ -264,20 +283,20 @@ void	eating(t_stuff *stuff)
 		time_ms(&stuff->tv_start), stuff->philo_id);
 	ft_usleep(stuff, stuff->t_to_eat);
 	put_forks(stuff);
-	sem_wait(&stuff->sem_protection);
+	sem_wait(stuff->sem_protection);
 	stuff->n_eat++;
-	sem_post(&stuff->sem_protection);
+	sem_post(stuff->sem_protection);
 }
 
-void	start(void *arg)
+void	*start(void *arg)
 {
 	t_stuff	*stuff;
 
 	stuff = (t_stuff *) arg;
 	sem_wait(stuff->lock);
-	sem_wait(&stuff->sem_protection);
+	sem_wait(stuff->sem_protection);
 	gettimeofday(&stuff->tv_beg, NULL);
-	sem_post(&stuff->sem_protection);
+	sem_post(stuff->sem_protection);
 	if ((stuff->philo_id % 2))
 		ft_usleep(stuff, stuff->t_to_eat);
 	while (is_alive(stuff))
@@ -286,6 +305,7 @@ void	start(void *arg)
 		eating(stuff);
 		sleeping(stuff);
 	}
+	return (NULL);
 }
 
 void	check_alive(t_stuff *stuff)
@@ -338,6 +358,71 @@ void	open_semaphores(t_stuff *stuff)
 	}
 }
 
+int	ft_strlen(char *s)
+{
+	int	i;
+
+	i = 0;
+	while (s[i])
+	{
+		i++;
+	}
+	return (i);
+}
+
+int	ft_numlen(int n)
+{
+	int	i;
+
+	i = 0;
+	while (n)
+	{
+		i++;
+		n /= 10;
+	}
+	return (i);
+}
+
+char	*ft_itoa(int n)
+{
+	char	*res;
+	int		len;
+
+	len = ft_numlen(n);
+	res = malloc(len + 1);
+	res[len--] = 0;
+	while (n)
+	{
+		res[len--] = (n % 10) + 48;
+		n /= 10;
+	}
+	return (res);
+}
+
+char	*ft_strjoin(char *s1, char *s2)
+{
+	char	*res;
+	int		i;
+	int		j;
+
+	i = 0;
+	j = 0;
+	res = malloc(ft_strlen(s1) + ft_strlen(s2) + 1);
+	if (!res)
+		return (free(s2), NULL);
+	while (s1[i])
+	{
+		res[j++] = s1[i++];
+	}
+	i = 0;
+	while (s2[i])
+	{
+		res[j++] = s2[i++];
+	}
+	res[j] = 0;
+	return (free(s2), res);
+}
+
 void	init_semaphores(t_stuff *stuff)
 {
 	stuff->sem_protection_name = ft_strjoin("sem_protection_", ft_itoa(stuff->philo_id));
@@ -352,11 +437,11 @@ void	init_semaphores(t_stuff *stuff)
 
 void	run_simulation(t_stuff *stuff)
 {
-	 pthread_t	*philo;
+	 pthread_t	philo;
 
 	init_time(stuff);
 	init_semaphores(stuff);
-	if (pthread_create(philo, NULL, start, stuff))
+	if (pthread_create(&philo, NULL, start, stuff))
 	{
 		clean_sems(stuff);
 		exit(EXIT_FAILURE);
@@ -374,10 +459,10 @@ void	init_philos(t_stuff *stuff)
 		wait_child(stuff);
 }
 
-void	init_stuff(t_stuff *stuff, int ac, char *av[])
+bool	init_stuff(t_stuff *stuff, int ac, char *av[])
 {
 	if (ac != 5 && ac != 6)
-		return (write(2, "Invalid arguments!\n", 19), 1);
+		return (write(2, "Invalid arguments!\n", 19), false);
 	stuff->alive = true;
 	stuff->must_eat = 0;
 	stuff->number_of_philos = ft_atoi(av[1]);
@@ -388,22 +473,23 @@ void	init_stuff(t_stuff *stuff, int ac, char *av[])
 		|| stuff->t_to_die <= 0
 		|| stuff->t_to_eat <= 0
 		|| stuff->t_to_sleep <= 0)
-		return (write(2, "Invalid arguments!\n", 19), 1);
+		return (write(2, "Invalid arguments!\n", 19), false);
 	if (ac == 6)
 	{
 		stuff->must_eat = ft_atoi(av[5]);
 		if (stuff->must_eat <= 0)
-			return (1);
+			return (false);
 	}
+	return (true);
 }
 
 int main(int ac, char **av)
 {
     t_stuff	stuff;
-	int		reval;
 
 	stuff = (t_stuff) {0};
-	init_stuff(&stuff, ac, av);
+	if (!init_stuff(&stuff, ac, av))
+		return (1);
 	if (stuff.number_of_philos == 1)
 		one_philo(stuff.t_to_die);
     init_philos(&stuff);

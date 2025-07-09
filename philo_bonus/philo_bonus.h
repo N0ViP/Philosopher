@@ -6,6 +6,7 @@
 # include <signal.h>
 # include <unistd.h>
 # include <stdlib.h>
+# include <limits.h>
 # include <pthread.h>
 # include <stdbool.h>
 # include <sys/time.h>
@@ -31,5 +32,38 @@ typedef struct s_stuff
 	int				t_to_sleep;
 	int				must_eat;
 } t_stuff;
+
+long long	time_ms(struct timeval *tv);
+int		ft_abs(int x);
+bool	is_alive(t_stuff *stuff);
+void	ft_usleep(t_stuff *stuff, int time);
+void	clean_up(t_stuff *stuff);
+void	clean_sems(t_stuff *stuff);
+void	one_philo(int t_to_die);
+void	kill_philos(t_stuff *stuff, int n_of_philos);
+void	allocate_philos_forks(t_stuff *stuff);
+void	init_time(t_stuff *stuff);
+void	run_philos(t_stuff *stuff);
+void	philo_died(t_stuff *stuff, int pid);
+void	wait_child(t_stuff *stuff);
+void	thinking(t_stuff *stuff);
+void	sleeping(t_stuff *stuff);
+void	take_fork(t_stuff *stuff);
+void	take_forks(t_stuff *stuff);
+void	put_forks(t_stuff *stuff);
+void	eating(t_stuff *stuff);
+void	*start(void *arg);
+void	check_alive(t_stuff *stuff);
+void	check_eat(t_stuff *stuff);
+void	monitor(t_stuff *stuff);
+void	open_semaphores(t_stuff *stuff);
+void	init_semaphores(t_stuff *stuff);
+void	run_simulation(t_stuff *stuff);
+void	init_philos(t_stuff *stuff);
+bool	init_stuff(t_stuff *stuff, int ac, char *av[]);
+char	*ft_strjoin(char *s1, char *s2);
+int	ft_strlen(char *s);
+int	ft_numlen(int n);
+char	*ft_itoa(int n);
 
 #endif
