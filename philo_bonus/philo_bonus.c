@@ -45,6 +45,7 @@ void	clean_up(t_stuff *stuff)
 	sem_unlink("/forks");
 	sem_unlink("/lock");
 	free(stuff->philos);
+	free(stuff);
 }
 
 void	clean_sems(t_stuff *stuff)
@@ -92,7 +93,6 @@ void	kill_philos(t_stuff *stuff, int n_of_philos)
 		kill(stuff->philos[i], SIGKILL);
 		i++;
 	}
-	clean_up(stuff);
 }
 
 void	allocate_philos_forks(t_stuff *stuff)
@@ -150,33 +150,43 @@ void	run_philos(t_stuff *stuff)
 	}
 }
 
-void	philos_died(t_stuff *stuff, int pid)
+void	philo_died(t_stuff *stuff, int pid)
 {
 	struct timeval	tv;
+	int				i;
 
+	i = 0;
+	while (stuff->philos[i] != pid)
+	{
+		i++;
+	}
+	i++;
 	gettimeofday(&tv, NULL);
 	kill_philos(stuff, stuff->number_of_philos);
 	printf("%lld\t%d\tdied\n", time_ms(&tv) - \
 		time_ms(&stuff->tv_start), pid);
+	clean_up(stuff);
 	exit(EXIT_FAILURE);
 }
 
 void	wait_child(t_stuff *stuff)
 {
+	int	child_pid;
 	int	exit_child_val;
 	int	i;
 
 	i = 1;
 	while (true)
 	{
-		waitpid(-1, &exit_child_val, 0);
+		child_pid = waitpid(-1, &exit_child_val, 0);
 		if (exit_child_val != 0)
 		{
-			philo_died(stuff, exit_child_val);
+			philo_died(stuff, child_pid);
 		}
 		if (stuff->must_eat != 0 && i == stuff->number_of_philos)
 		{
 			kill_philos(stuff, stuff->number_of_philos);
+			clean_up(stuff);
 			exit(EXIT_SUCCESS);
 		}
 		i++;
@@ -277,10 +287,44 @@ void	start(void *arg)
 		sleeping(stuff);
 	}
 }
-///???????
+
+void	check_alive(t_stuff *stuff)
+{
+	struct timeval	tv;
+	long long		time;
+
+	sem_wait(stuff->sem_protection);
+	time = time_ms(&stuff->tv_beg);
+	sem_post(stuff->sem_protection);
+	gettimeofday(&tv, NULL);
+	if (time_ms(&tv) - time >= stuff->t_to_die)
+	{
+		clean_sems(stuff);
+		exit (EXIT_FAILURE);
+	}
+}
+
+void	check_eat(t_stuff *stuff)
+{
+	int	n;
+
+	sem_wait(stuff->sem_protection);
+	n = stuff->n_eat;
+	sem_post(stuff->sem_protection);
+	if (stuff->must_eat && n >= stuff->must_eat)
+	{
+		clean_sems(stuff);
+		exit(EXIT_SUCCESS);
+	}
+}
+
 void	monitor(t_stuff *stuff)
 {
-	;
+	while (true)
+	{
+		check_alive(stuff);
+		check_eat(stuff);
+	}
 }
 
 void	open_semaphores(t_stuff *stuff)
