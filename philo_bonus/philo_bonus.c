@@ -239,7 +239,7 @@ void	sleeping(t_stuff *stuff)
 	if (!is_alive(stuff))
 		return ;
 	gettimeofday(&tv, NULL);
-	printf("%lld\t%d\tis slepping\n", time_ms(&tv) - \
+	printf("%lld\t%d\tis sleeping\n", time_ms(&tv) - \
 		time_ms(&stuff->tv_start), stuff->philo_id);
 	ft_usleep(stuff, stuff->t_to_sleep);
 }
@@ -279,7 +279,7 @@ void	eating(t_stuff *stuff)
 	sem_wait(stuff->sem_protection);
 	gettimeofday(&stuff->tv_beg, NULL);
 	sem_post(stuff->sem_protection);
-	printf("%lld\t%d\tis thinking\n", time_ms(&stuff->tv_beg) - \
+	printf("%lld\t%d\tis eating\n", time_ms(&stuff->tv_beg) - \
 		time_ms(&stuff->tv_start), stuff->philo_id);
 	ft_usleep(stuff, stuff->t_to_eat);
 	put_forks(stuff);
