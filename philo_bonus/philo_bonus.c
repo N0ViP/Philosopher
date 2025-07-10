@@ -33,9 +33,9 @@ int	ft_abs(int x)
 bool	is_alive(t_stuff *stuff)
 {
 	bool	alive;
-	sem_wait(stuff->sem_protection);
+	sem_wait(stuff->alive_protection);
 	alive = stuff->alive;
-	sem_post(stuff->sem_protection);
+	sem_post(stuff->alive_protection);
 	return (alive);
 }
 
@@ -67,9 +67,15 @@ void	clean_up(t_stuff *stuff)
 
 void	clean_sems(t_stuff *stuff)
 {
-	sem_close(stuff->sem_protection);
-	sem_unlink(stuff->sem_protection_name);
-	free(stuff->sem_protection_name);
+	sem_close(stuff->alive_protection);
+	sem_close(stuff->time_protection);
+	sem_close(stuff->eat_protection);
+	sem_unlink(stuff->alive_protection_name);
+	sem_unlink(stuff->time_protection_name);
+	sem_unlink(stuff->eat_protection_name);
+	free(stuff->alive_protection_name);
+	free(stuff->time_protection_name);
+	free(stuff->eat_protection_name);
 	clean_up(stuff);
 }
 
@@ -155,12 +161,7 @@ void	run_philos(t_stuff *stuff)
 		}
 		i++;
 	}
-	i = 0;
-	while (i < stuff->number_of_philos)
-	{
-		sem_post(stuff->lock);
-		i++;
-	}
+	sem_post(stuff->lock);
 }
 
 void	philo_died(t_stuff *stuff, int pid)
@@ -178,7 +179,7 @@ void	philo_died(t_stuff *stuff, int pid)
 	gettimeofday(&tv, NULL);
 	gettimeofday(&stuff->tv_beg, NULL);
 	printf("%lld\t%d\tdied\n", time_ms(&tv) - \
-		time_ms(&stuff->tv_beg), pid);
+		time_ms(&stuff->tv_beg), i);
 }
 
 void	wait_child(t_stuff *stuff)
@@ -267,21 +268,21 @@ void	put_forks(t_stuff *stuff)
 void	eating(t_stuff *stuff)
 {
 	take_forks(stuff);
+	sem_wait(stuff->time_protection);
+	gettimeofday(&stuff->tv_beg, NULL);
+	sem_post(stuff->time_protection);
 	if (!is_alive(stuff))
 	{
 		put_forks(stuff);
 		return ;
 	}
-	sem_wait(stuff->sem_protection);
-	gettimeofday(&stuff->tv_beg, NULL);
-	sem_post(stuff->sem_protection);
 	printf("%lld\t%d\tis eating\n", time_ms(&stuff->tv_beg) - \
 		time_ms(&stuff->tv_start), stuff->philo_id);
 	ft_usleep(stuff, stuff->t_to_eat);
 	put_forks(stuff);
-	sem_wait(stuff->sem_protection);
+	sem_wait(stuff->eat_protection);
 	stuff->n_eat++;
-	sem_post(stuff->sem_protection);
+	sem_post(stuff->eat_protection);
 }
 
 void	*start(void *arg)
@@ -289,11 +290,10 @@ void	*start(void *arg)
 	t_stuff	*stuff;
 
 	stuff = (t_stuff *) arg;
-	sem_wait(stuff->lock);
-	sem_wait(stuff->sem_protection);
+	sem_wait(stuff->time_protection);
 	gettimeofday(&stuff->tv_beg, NULL);
-	sem_post(stuff->sem_protection);
-	if ((stuff->philo_id % 2))
+	sem_post(stuff->time_protection);
+	if (!(stuff->philo_id % 2))
 		ft_usleep(stuff, stuff->t_to_eat);
 	while (is_alive(stuff))
 	{
@@ -306,9 +306,9 @@ void	*start(void *arg)
 
 void	jon_philo(t_stuff *stuff, pthread_t philo)
 {
-	sem_wait(stuff->sem_protection);
+	sem_wait(stuff->alive_protection);
 	stuff->alive = false;
-	sem_post(stuff->sem_protection);
+	sem_post(stuff->alive_protection);
 	pthread_join(philo, NULL);
 	clean_sems(stuff);
 }
@@ -318,9 +318,9 @@ void	check_alive(t_stuff *stuff, pthread_t philo)
 	struct timeval	tv;
 	long long		time;
 
-	sem_wait(stuff->sem_protection);
+	sem_wait(stuff->time_protection);
 	time = time_ms(&stuff->tv_beg);
-	sem_post(stuff->sem_protection);
+	sem_post(stuff->time_protection);
 	gettimeofday(&tv, NULL);
 	if (time_ms(&tv) - time >= stuff->t_to_die)
 	{
@@ -333,9 +333,9 @@ void	check_eat(t_stuff *stuff, pthread_t philo)
 {
 	int	n;
 
-	sem_wait(stuff->sem_protection);
+	sem_wait(stuff->eat_protection);
 	n = stuff->n_eat;
-	sem_post(stuff->sem_protection);
+	sem_post(stuff->eat_protection);
 	if (stuff->must_eat && n >= stuff->must_eat)
 	{
 		jon_philo(stuff, philo);
@@ -349,15 +349,21 @@ void	monitor(t_stuff *stuff, pthread_t philo)
 	{
 		check_alive(stuff, philo);
 		check_eat(stuff, philo);
-		// usleep(100);
+		usleep(100);
 	}
 }
 
 void	open_semaphores(t_stuff *stuff)
 {
-	sem_unlink(stuff->sem_protection_name);
-	stuff->sem_protection = sem_open(stuff->sem_protection_name, O_CREAT,  0777, 1);
-	if (!stuff->sem_protection)
+	sem_unlink(stuff->alive_protection_name);
+	sem_unlink(stuff->time_protection_name);
+	sem_unlink(stuff->eat_protection_name);
+	stuff->alive_protection = sem_open(stuff->alive_protection_name, O_CREAT,  0777, 1);
+	stuff->time_protection = sem_open(stuff->time_protection_name, O_CREAT,  0777, 1);
+	stuff->eat_protection = sem_open(stuff->eat_protection_name, O_CREAT,  0777, 1);
+	if (!stuff->alive_protection
+		|| !stuff->time_protection
+		|| !stuff->eat_protection)
 	{
 		clean_sems(stuff);
 		exit(EXIT_FAILURE);
@@ -413,6 +419,8 @@ char	*ft_strjoin(char *s1, char *s2)
 
 	i = 0;
 	j = 0;
+	if (!s2)
+		return (NULL);
 	res = malloc(ft_strlen(s1) + ft_strlen(s2) + 1);
 	if (!res)
 		return (free(s2), NULL);
@@ -431,9 +439,16 @@ char	*ft_strjoin(char *s1, char *s2)
 
 void	init_semaphores(t_stuff *stuff)
 {
-	stuff->sem_protection_name = ft_strjoin("sem_protection_", ft_itoa(stuff->philo_id));
-	if (!stuff->sem_protection_name)
+	stuff->alive_protection_name = ft_strjoin("alive_protection_", ft_itoa(stuff->philo_id));
+	stuff->time_protection_name = ft_strjoin("time_protection_", ft_itoa(stuff->philo_id));
+	stuff->eat_protection_name = ft_strjoin("eat_protection_", ft_itoa(stuff->philo_id));
+	if (!stuff->alive_protection_name
+		|| !stuff->time_protection_name
+		|| !stuff->eat_protection_name)
 	{
+		free (stuff->alive_protection_name);
+		free (stuff->time_protection_name);
+		free (stuff->eat_protection_name);
 		clean_up(stuff);
 		exit (EXIT_FAILURE);
 	}
@@ -442,10 +457,12 @@ void	init_semaphores(t_stuff *stuff)
 
 void	run_simulation(t_stuff *stuff)
 {
-	 pthread_t	philo;
+	pthread_t	philo;
 
-	init_time(stuff);
 	init_semaphores(stuff);
+	sem_wait(stuff->lock);
+	sem_post(stuff->lock);
+	init_time(stuff);
 	if (pthread_create(&philo, NULL, start, stuff))
 	{
 		clean_sems(stuff);

@@ -18,12 +18,16 @@ typedef struct s_stuff
 	struct timeval	tv_start;
 	struct timeval	tv_beg;
 	sem_t			*forks;
-	sem_t			*sem_protection;
+	sem_t			*alive_protection;
+	sem_t			*time_protection;
+	sem_t			*eat_protection;
 	sem_t			*lock;
 	pid_t			*philos;
 	pid_t			philo_id;
 	pid_t			p_pid;
-	char			*sem_protection_name;
+	char			*alive_protection_name;
+	char			*time_protection_name;
+	char			*eat_protection_name;
 	bool			alive;
 	int				n_eat;
 	int				number_of_philos;
