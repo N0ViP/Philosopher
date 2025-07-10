@@ -53,9 +53,9 @@ void	take_forks(t_stuff *stuff);
 void	put_forks(t_stuff *stuff);
 void	eating(t_stuff *stuff);
 void	*start(void *arg);
-void	check_alive(t_stuff *stuff);
-void	check_eat(t_stuff *stuff);
-void	monitor(t_stuff *stuff);
+void	check_alive(t_stuff *stuff, pthread_t philo);
+void	check_eat(t_stuff *stuff, pthread_t philo);
+void	monitor(t_stuff *stuff, pthread_t philo);
 void	open_semaphores(t_stuff *stuff);
 void	init_semaphores(t_stuff *stuff);
 void	run_simulation(t_stuff *stuff);
@@ -65,5 +65,6 @@ char	*ft_strjoin(char *s1, char *s2);
 int	ft_strlen(char *s);
 int	ft_numlen(int n);
 char	*ft_itoa(int n);
+void	jon_philo(t_stuff *stuff, pthread_t philo);
 
 #endif

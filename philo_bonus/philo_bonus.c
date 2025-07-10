@@ -63,7 +63,6 @@ void	clean_up(t_stuff *stuff)
 	sem_unlink("/forks");
 	sem_unlink("/lock");
 	free(stuff->philos);
-	free(stuff);
 }
 
 void	clean_sems(t_stuff *stuff)
@@ -123,14 +122,13 @@ void	allocate_philos_forks(t_stuff *stuff)
 	}
 	sem_unlink("/forks");
 	sem_unlink("/lock");
-	stuff->lock = sem_open("/lock", O_CREAT, 0777, 1);
+	stuff->lock = sem_open("/lock", O_CREAT, 0777, 0);
 	stuff->forks = sem_open("/forks", O_CREAT, 0777, stuff->number_of_philos);
 	if (!stuff->forks || !stuff->lock)
 	{
 		clean_up(stuff);
 		exit(EXIT_FAILURE);
 	}
-	sem_wait(stuff->lock);
 }
 
 void	init_time(t_stuff *stuff)
@@ -147,24 +145,21 @@ void	run_philos(t_stuff *stuff)
 	while (i < stuff->number_of_philos)
 	{
 		if (getpid() != stuff->p_pid)
-			break ;
+			return ;
 		stuff->philo_id = i + 1;
 		stuff->philos[i] = fork();
 		if (stuff->philos[i] == -1)
 		{
 			kill_philos(stuff, i);
-			exit(1);
+			exit(EXIT_FAILURE);
 		}
 		i++;
 	}
 	i = 0;
-	if (getpid() == stuff->p_pid)
+	while (i < stuff->number_of_philos)
 	{
-		while (i < stuff->number_of_philos)
-		{
-			sem_post(stuff->lock);
-			i++;
-		}
+		sem_post(stuff->lock);
+		i++;
 	}
 }
 
@@ -179,12 +174,11 @@ void	philo_died(t_stuff *stuff, int pid)
 		i++;
 	}
 	i++;
-	gettimeofday(&tv, NULL);
 	kill_philos(stuff, stuff->number_of_philos);
+	gettimeofday(&tv, NULL);
+	gettimeofday(&stuff->tv_beg, NULL);
 	printf("%lld\t%d\tdied\n", time_ms(&tv) - \
-		time_ms(&stuff->tv_start), pid);
-	clean_up(stuff);
-	exit(EXIT_FAILURE);
+		time_ms(&stuff->tv_beg), pid);
 }
 
 void	wait_child(t_stuff *stuff)
@@ -200,6 +194,8 @@ void	wait_child(t_stuff *stuff)
 		if (exit_child_val != 0)
 		{
 			philo_died(stuff, child_pid);
+			clean_up(stuff);
+			exit(EXIT_FAILURE);
 		}
 		if (stuff->must_eat != 0 && i == stuff->number_of_philos)
 		{
@@ -308,7 +304,16 @@ void	*start(void *arg)
 	return (NULL);
 }
 
-void	check_alive(t_stuff *stuff)
+void	jon_philo(t_stuff *stuff, pthread_t philo)
+{
+	sem_wait(stuff->sem_protection);
+	stuff->alive = false;
+	sem_post(stuff->sem_protection);
+	pthread_join(philo, NULL);
+	clean_sems(stuff);
+}
+
+void	check_alive(t_stuff *stuff, pthread_t philo)
 {
 	struct timeval	tv;
 	long long		time;
@@ -319,12 +324,12 @@ void	check_alive(t_stuff *stuff)
 	gettimeofday(&tv, NULL);
 	if (time_ms(&tv) - time >= stuff->t_to_die)
 	{
-		clean_sems(stuff);
+		jon_philo(stuff, philo);
 		exit (EXIT_FAILURE);
 	}
 }
 
-void	check_eat(t_stuff *stuff)
+void	check_eat(t_stuff *stuff, pthread_t philo)
 {
 	int	n;
 
@@ -333,17 +338,18 @@ void	check_eat(t_stuff *stuff)
 	sem_post(stuff->sem_protection);
 	if (stuff->must_eat && n >= stuff->must_eat)
 	{
-		clean_sems(stuff);
+		jon_philo(stuff, philo);
 		exit(EXIT_SUCCESS);
 	}
 }
 
-void	monitor(t_stuff *stuff)
+void	monitor(t_stuff *stuff, pthread_t philo)
 {
 	while (true)
 	{
-		check_alive(stuff);
-		check_eat(stuff);
+		check_alive(stuff, philo);
+		check_eat(stuff, philo);
+		// usleep(100);
 	}
 }
 
@@ -428,7 +434,6 @@ void	init_semaphores(t_stuff *stuff)
 	stuff->sem_protection_name = ft_strjoin("sem_protection_", ft_itoa(stuff->philo_id));
 	if (!stuff->sem_protection_name)
 	{
-		free(stuff->sem_protection_name);
 		clean_up(stuff);
 		exit (EXIT_FAILURE);
 	}
@@ -446,7 +451,7 @@ void	run_simulation(t_stuff *stuff)
 		clean_sems(stuff);
 		exit(EXIT_FAILURE);
 	}
-	monitor(stuff);
+	monitor(stuff, philo);
 }
 
 void	init_philos(t_stuff *stuff)
