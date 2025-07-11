@@ -49,7 +49,6 @@ bool	monitoring_1(t_philo *philos)
 				return (false);
 			i++;
 		}
-		usleep(500);
 	}
 	return (true);
 }

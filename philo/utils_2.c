@@ -25,7 +25,6 @@ void	ft_usleep(t_philo *philo, int time)
 		gettimeofday(&tv_after, NULL);
 		if (time_ms(&tv_after) - time_ms(&tv_before) >= time)
 			break ;
-		usleep(500);
 	}
 }
 
