@@ -22,7 +22,7 @@ int	ft_atoi(char *s)
 	while (*s >= 48 && *s <= 57)
 	{
 		res = (res << 3) + (res << 1) + (*s++ & 0X0f);
-		if (res > INT_MIN)
+		if (res > INT_MAX)
 			return (-1);
 	}
 	if (*s)
