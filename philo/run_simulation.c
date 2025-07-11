@@ -30,7 +30,7 @@ void	thinking(t_philo *philo)
 		while (time + t_to_eat_sleep >= philo->stuff->t_to_die)
 			time /= 2;
 	}
-	ft_usleep(philo, time);
+	usleep(time * 1000);
 }
 
 void	sleeping(t_philo *philo)
@@ -42,24 +42,24 @@ void	sleeping(t_philo *philo)
 	gettimeofday(&tv, NULL);
 	printf("%lld\t%d\tis sleeping\n", time_ms(&tv) - \
 		time_ms(&philo->stuff->tv_start), philo->first_fork + 1);
-	ft_usleep(philo, philo->stuff->t_to_sleep);
+	usleep(philo->stuff->t_to_sleep * 1000);
 }
 
 void	eating(t_philo *philo)
 {
 	take_forks(philo);
-	pthread_mutex_lock(&philo->time_protection);
-	gettimeofday(&philo->tv_beg, NULL);
-	pthread_mutex_unlock(&philo->time_protection);
 	if (!is_alive(philo))
 	{
 		put_fork(philo, philo->first_fork);
 		put_fork(philo, philo->second_fork);
 		return ;
 	}
+	pthread_mutex_lock(&philo->time_protection);
+	gettimeofday(&philo->tv_beg, NULL);
+	pthread_mutex_unlock(&philo->time_protection);
 	printf("%lld\t%d\tis eating\n", time_ms(&philo->tv_beg) - \
 		time_ms(&philo->stuff->tv_start), philo->first_fork + 1);
-	ft_usleep(philo, philo->stuff->t_to_eat);
+	usleep(philo->stuff->t_to_eat * 1000);
 	put_fork(philo, philo->first_fork);
 	put_fork(philo, philo->second_fork);
 	pthread_mutex_lock(&philo->eat_protection);
@@ -78,7 +78,7 @@ void	*run_simulation(void *arg)
 	gettimeofday(&philo->tv_beg, NULL);
 	pthread_mutex_unlock(&philo->time_protection);
 	if (!(philo->first_fork % 2))
-		ft_usleep(philo, philo->stuff->t_to_eat);
+		usleep(philo->stuff->t_to_eat * 1000);
 	while (is_alive(philo))
 	{
 		thinking(philo);

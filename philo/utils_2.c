@@ -12,22 +12,6 @@
 
 #include "philo.h"
 
-void	ft_usleep(t_philo *philo, int time)
-{
-	struct timeval	tv_before;
-	struct timeval	tv_after;
-
-	gettimeofday(&tv_before, NULL);
-	while (true)
-	{
-		if (!is_alive(philo))
-			return ;
-		gettimeofday(&tv_after, NULL);
-		if (time_ms(&tv_after) - time_ms(&tv_before) >= time)
-			break ;
-	}
-}
-
 void	take_fork(t_philo *philo, int fork)
 {
 	struct timeval	tv;
@@ -38,6 +22,19 @@ void	take_fork(t_philo *philo, int fork)
 		return ;
 	printf("%lld\t%d\thas taken a fork\n", time_ms(&tv) - \
 		time_ms(&philo->stuff->tv_start), philo->first_fork + 1);
+}
+
+void	join_philos(t_philo *philos, int n_of_philos)
+{
+	int	i;
+
+	i = 0;
+	while (i < n_of_philos)
+	{
+		pthread_join(philos[i].stuff->philos[i], NULL);
+		i++;
+	}
+	destroy_mutex(philos, philos->stuff->number_of_philos);
 }
 
 void	put_fork(t_philo *philo, int fork)

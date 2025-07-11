@@ -29,13 +29,6 @@ void	kill_philos(t_philo *philos, int n_of_philos)
 		pthread_mutex_unlock(&philos[i].alive_protection);
 		i++;
 	}
-	i = 0;
-	while (i < n_of_philos)
-	{
-		pthread_join(philos[i].stuff->philos[i], NULL);
-		i++;
-	}
-	destroy_mutex(philos, philos->stuff->number_of_philos);
 }
 
 void	destroy_mutex(t_philo *philos, int n_of_philos)
@@ -56,7 +49,7 @@ void	destroy_mutex(t_philo *philos, int n_of_philos)
 
 bool	is_alive(t_philo *philo)
 {
-	bool	alive;
+	bool			alive;
 
 	pthread_mutex_lock(&philo->alive_protection);
 	alive = philo->alive;

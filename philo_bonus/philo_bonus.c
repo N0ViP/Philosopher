@@ -32,7 +32,21 @@ int	ft_abs(int x)
 
 bool	is_alive(t_stuff *stuff)
 {
-	bool	alive;
+	bool			alive;
+	struct timeval	tv;
+	long long		time;
+
+	sem_wait(stuff->time_protection);
+	time = time_ms(&stuff->tv_beg);
+	sem_post(stuff->time_protection);
+	gettimeofday(&tv, NULL);
+	if (time_ms(&tv) - time >= stuff->t_to_die)
+	{
+		sem_wait(stuff->alive_protection);
+		stuff->alive = false;
+		sem_post(stuff->alive_protection);
+		return (false);
+	}
 	sem_wait(stuff->alive_protection);
 	alive = stuff->alive;
 	sem_post(stuff->alive_protection);
@@ -41,18 +55,20 @@ bool	is_alive(t_stuff *stuff)
 
 void	ft_usleep(t_stuff *stuff, int time)
 {
-	struct timeval	tv_before;
-	struct timeval	tv_after;
+	// struct timeval	tv_before;
+	// struct timeval	tv_after;
 
-	gettimeofday(&tv_before, NULL);
-	while (true)
-	{
-		if (!is_alive(stuff))
-			return ;
-		gettimeofday(&tv_after, NULL);
-		if (time_ms(&tv_after) - time_ms(&tv_before) >= time)
-			break ;
-	}
+	// gettimeofday(&tv_before, NULL);
+	// while (true)
+	// {
+	// 	if (!is_alive(stuff))
+	// 		return ;
+	// 	gettimeofday(&tv_after, NULL);
+	// 	if (time_ms(&tv_after) - time_ms(&tv_before) >= time)
+	// 		break ;
+	// }
+	(void)stuff;
+	usleep(time * 1000);
 }
 
 void	clean_up(t_stuff *stuff)
@@ -292,7 +308,7 @@ void	*start(void *arg)
 	sem_wait(stuff->time_protection);
 	gettimeofday(&stuff->tv_beg, NULL);
 	sem_post(stuff->time_protection);
-	if ((stuff->philo_id % 2))
+	if (!(stuff->philo_id % 2))
 		ft_usleep(stuff, stuff->t_to_eat);
 	while (is_alive(stuff))
 	{

@@ -21,7 +21,6 @@
 # include <stdbool.h>
 # include <sys/time.h>
 
-
 typedef struct s_stuff
 {
 	pthread_t		*philos;
@@ -59,8 +58,8 @@ long long	time_ms(struct timeval *tv);
 void		put_fork(t_philo *philo, int fork);
 bool		init_mutex(pthread_mutex_t *mtx[4]);
 void		take_fork(t_philo *philo, int fork);
-void		ft_usleep(t_philo *philo, int time);
 bool		init_philo(t_philo *philos, t_stuff *stuff);
+void		join_philos(t_philo *philos, int n_of_philos);
 void		kill_philos(t_philo *philos, int n_of_philos);
 void		destroy_mutex(t_philo *philos, int n_of_philos);
 bool		init_each_philo(t_philo *philo, t_stuff *stuff, int i);

@@ -26,9 +26,9 @@ bool	check_philos(t_philo *philos, int i)
 	if (time && time_ms(&tv) - time >= t_to_die)
 	{
 		kill_philos(philos, philos[i].stuff->number_of_philos);
-		gettimeofday(&tv, NULL);
 		printf("%lld\t%d\tdied\n", time_ms(&tv) - \
 			time_ms(&philos[i].stuff->tv_start), i + 1);
+		join_philos(philos, philos[i].stuff->number_of_philos);
 		return (false);
 	}
 	return (true);
@@ -74,10 +74,8 @@ bool	monitoring_2(t_philo *philos)
 			pthread_mutex_unlock(&philos[i].eat_protection);
 			i++;
 		}
-		usleep(500);
 		if (cnt == n)
-			return (kill_philos(philos, philos[0].stuff->number_of_philos),
-				true);
+			return (kill_philos(philos, n), join_philos(philos, n), true);
 	}
 	return (true);
 }
