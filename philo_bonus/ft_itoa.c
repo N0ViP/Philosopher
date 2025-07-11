@@ -1,26 +1,42 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   philo_bonus.c                                      :+:      :+:    :+:   */
+/*   ft_itoa.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: yjaafar <yjaafar@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/07/11 16:21:05 by yjaafar           #+#    #+#             */
-/*   Updated: 2025/07/11 16:21:06 by yjaafar          ###   ########.fr       */
+/*   Created: 2025/07/11 16:03:08 by yjaafar           #+#    #+#             */
+/*   Updated: 2025/07/11 16:20:37 by yjaafar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo_bonus.h"
 
-int	main(int ac, char **av)
+int	ft_numlen(int n)
 {
-	t_stuff	stuff;
+	int	i;
 
-	stuff = (t_stuff){0};
-	if (!init_stuff(&stuff, ac, av))
-		return (1);
-	if (stuff.number_of_philos == 1)
-		one_philo(stuff.t_to_die);
-	init_philos(&stuff);
-	return (0);
+	i = 0;
+	while (n)
+	{
+		i++;
+		n /= 10;
+	}
+	return (i);
+}
+
+char	*ft_itoa(int n)
+{
+	char	*res;
+	int		len;
+
+	len = ft_numlen(n);
+	res = malloc(len + 1);
+	res[len--] = 0;
+	while (n)
+	{
+		res[len--] = (n % 10) + 48;
+		n /= 10;
+	}
+	return (res);
 }

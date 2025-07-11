@@ -1,26 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   philo_bonus.c                                      :+:      :+:    :+:   */
+/*   ft_strlen.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: yjaafar <yjaafar@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/07/11 16:21:05 by yjaafar           #+#    #+#             */
-/*   Updated: 2025/07/11 16:21:06 by yjaafar          ###   ########.fr       */
+/*   Created: 2025/07/11 16:20:46 by yjaafar           #+#    #+#             */
+/*   Updated: 2025/07/11 16:20:49 by yjaafar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo_bonus.h"
 
-int	main(int ac, char **av)
+int	ft_strlen(char *s)
 {
-	t_stuff	stuff;
+	int	i;
 
-	stuff = (t_stuff){0};
-	if (!init_stuff(&stuff, ac, av))
-		return (1);
-	if (stuff.number_of_philos == 1)
-		one_philo(stuff.t_to_die);
-	init_philos(&stuff);
-	return (0);
+	i = 0;
+	while (s[i])
+	{
+		i++;
+	}
+	return (i);
 }

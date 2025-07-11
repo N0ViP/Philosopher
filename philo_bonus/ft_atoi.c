@@ -1,26 +1,31 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   philo_bonus.c                                      :+:      :+:    :+:   */
+/*   ft_atoi.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: yjaafar <yjaafar@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/07/11 16:21:05 by yjaafar           #+#    #+#             */
-/*   Updated: 2025/07/11 16:21:06 by yjaafar          ###   ########.fr       */
+/*   Created: 2025/07/11 16:19:37 by yjaafar           #+#    #+#             */
+/*   Updated: 2025/07/11 16:20:30 by yjaafar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo_bonus.h"
 
-int	main(int ac, char **av)
+int	ft_atoi(char *s)
 {
-	t_stuff	stuff;
+	long	res;
 
-	stuff = (t_stuff){0};
-	if (!init_stuff(&stuff, ac, av))
-		return (1);
-	if (stuff.number_of_philos == 1)
-		one_philo(stuff.t_to_die);
-	init_philos(&stuff);
-	return (0);
+	if (!*s)
+		return (-1);
+	res = 0;
+	while (*s >= 48 && *s <= 57)
+	{
+		res = (res << 3) + (res << 1) + (*s++ & 0X0f);
+		if (res > INT_MAX)
+			return (-1);
+	}
+	if (*s)
+		return (-1);
+	return ((int) res);
 }
