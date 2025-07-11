@@ -6,7 +6,7 @@
 /*   By: yjaafar <yjaafar@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/14 08:29:06 by yjaafar           #+#    #+#             */
-/*   Updated: 2025/05/16 21:50:55 by yjaafar          ###   ########.fr       */
+/*   Updated: 2025/07/11 17:40:42 by yjaafar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,7 @@ bool		one_philo(t_stuff *stuff);
 void		*run_simulation(void *arg);
 void		take_forks(t_philo *philo);
 long long	time_ms(struct timeval *tv);
+void		print(t_philo *philo, char *str);
 void		put_fork(t_philo *philo, int fork);
 bool		init_mutex(pthread_mutex_t *mtx[4]);
 void		take_fork(t_philo *philo, int fork);

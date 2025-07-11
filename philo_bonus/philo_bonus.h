@@ -6,7 +6,7 @@
 /*   By: yjaafar <yjaafar@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/11 16:21:19 by yjaafar           #+#    #+#             */
-/*   Updated: 2025/07/11 16:22:36 by yjaafar          ###   ########.fr       */
+/*   Updated: 2025/07/11 18:04:08 by yjaafar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,6 @@ void		clean_sems(t_stuff *stuff);
 void		one_philo(int t_to_die);
 void		kill_philos(t_stuff *stuff, int n_of_philos);
 void		allocate_philos_forks(t_stuff *stuff);
-void		init_time(t_stuff *stuff);
 void		run_philos(t_stuff *stuff);
 void		philo_died(t_stuff *stuff, int pid);
 void		wait_child(t_stuff *stuff);
@@ -80,6 +79,7 @@ char		*ft_strjoin(char *s1, char *s2);
 int			ft_strlen(char *s);
 int			ft_numlen(int n);
 char		*ft_itoa(int n);
+void		print(t_stuff *stuff, char *str);
 int			ft_atoi(char *s);
 void		jon_philo(t_stuff *stuff, pthread_t philo);
 

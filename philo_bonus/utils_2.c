@@ -6,7 +6,7 @@
 /*   By: yjaafar <yjaafar@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/11 16:21:37 by yjaafar           #+#    #+#             */
-/*   Updated: 2025/07/11 16:21:38 by yjaafar          ###   ########.fr       */
+/*   Updated: 2025/07/11 17:54:51 by yjaafar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,14 +14,10 @@
 
 void	take_fork(t_stuff *stuff)
 {
-	struct timeval	tv;
-
 	sem_wait(stuff->forks);
 	if (!is_alive(stuff))
 		return ;
-	gettimeofday(&tv, NULL);
-	printf("%lld\t%d\thas taken a fork\n", time_ms(&tv) - \
-		time_ms(&stuff->tv_start), stuff->philo_id);
+	print(stuff, "has taken a fork\n");
 }
 
 void	take_forks(t_stuff *stuff)

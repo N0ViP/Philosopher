@@ -6,11 +6,22 @@
 /*   By: yjaafar <yjaafar@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/11 16:21:26 by yjaafar           #+#    #+#             */
-/*   Updated: 2025/07/11 16:21:27 by yjaafar          ###   ########.fr       */
+/*   Updated: 2025/07/11 18:04:01 by yjaafar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo_bonus.h"
+
+void	print(t_stuff *stuff, char *str)
+{
+	struct timeval	tv;
+
+	sem_wait(stuff->lock);
+	gettimeofday(&tv, NULL);
+	printf("%lld\t%d\t%s", time_ms(&tv) - \
+		time_ms(&stuff->tv_start), stuff->philo_id, str);
+	sem_post(stuff->lock);
+}
 
 long long	time_ms(struct timeval *tv)
 {
@@ -32,10 +43,4 @@ bool	is_alive(t_stuff *stuff)
 	alive = stuff->alive;
 	sem_post(stuff->alive_protection);
 	return (alive);
-}
-
-void	init_time(t_stuff *stuff)
-{
-	gettimeofday(&stuff->tv_start, NULL);
-	gettimeofday(&stuff->tv_beg, NULL);
 }

@@ -6,7 +6,7 @@
 /*   By: yjaafar <yjaafar@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/16 21:53:36 by yjaafar           #+#    #+#             */
-/*   Updated: 2025/05/16 21:54:52 by yjaafar          ###   ########.fr       */
+/*   Updated: 2025/07/11 17:42:21 by yjaafar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,15 +14,12 @@
 
 void	thinking(t_philo *philo)
 {
-	struct timeval	tv;
 	int				time;
 	int				t_to_eat_sleep;
 
 	if (!is_alive(philo))
 		return ;
-	gettimeofday(&tv, NULL);
-	printf("%lld\t%d\tis thinking\n", time_ms(&tv) - \
-		time_ms(&philo->stuff->tv_start), philo->first_fork + 1);
+	print(philo, "is thinking\n");
 	time = ft_abs(philo->stuff->t_to_eat - philo->stuff->t_to_sleep) + 10;
 	t_to_eat_sleep = philo->stuff->t_to_eat + philo->stuff->t_to_sleep;
 	if (t_to_eat_sleep < philo->stuff->t_to_die)
@@ -35,13 +32,9 @@ void	thinking(t_philo *philo)
 
 void	sleeping(t_philo *philo)
 {
-	struct timeval	tv;
-
 	if (!is_alive(philo))
 		return ;
-	gettimeofday(&tv, NULL);
-	printf("%lld\t%d\tis sleeping\n", time_ms(&tv) - \
-		time_ms(&philo->stuff->tv_start), philo->first_fork + 1);
+	print(philo, "is sleeping\n");
 	usleep(philo->stuff->t_to_sleep * 1000);
 }
 
@@ -57,8 +50,7 @@ void	eating(t_philo *philo)
 	pthread_mutex_lock(&philo->time_protection);
 	gettimeofday(&philo->tv_beg, NULL);
 	pthread_mutex_unlock(&philo->time_protection);
-	printf("%lld\t%d\tis eating\n", time_ms(&philo->tv_beg) - \
-		time_ms(&philo->stuff->tv_start), philo->first_fork + 1);
+	print(philo, "is eating\n");
 	usleep(philo->stuff->t_to_eat * 1000);
 	put_fork(philo, philo->first_fork);
 	put_fork(philo, philo->second_fork);

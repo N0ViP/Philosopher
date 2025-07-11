@@ -6,7 +6,7 @@
 /*   By: yjaafar <yjaafar@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/11 16:21:23 by yjaafar           #+#    #+#             */
-/*   Updated: 2025/07/11 16:21:24 by yjaafar          ###   ########.fr       */
+/*   Updated: 2025/07/11 18:04:13 by yjaafar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,15 +14,12 @@
 
 void	thinking(t_stuff *stuff)
 {
-	struct timeval	tv;
 	int				time;
 	int				t_to_eat_sleep;
 
 	if (!is_alive(stuff))
 		return ;
-	gettimeofday(&tv, NULL);
-	printf("%lld\t%d\tis thinking\n", time_ms(&tv) - \
-		time_ms(&stuff->tv_start), stuff->philo_id);
+	print(stuff, "is thinking\n");
 	time = ft_abs(stuff->t_to_eat - stuff->t_to_sleep) + 10;
 	t_to_eat_sleep = stuff->t_to_eat + stuff->t_to_sleep;
 	if (t_to_eat_sleep < stuff->t_to_die)
@@ -35,13 +32,9 @@ void	thinking(t_stuff *stuff)
 
 void	sleeping(t_stuff *stuff)
 {
-	struct timeval	tv;
-
 	if (!is_alive(stuff))
 		return ;
-	gettimeofday(&tv, NULL);
-	printf("%lld\t%d\tis sleeping\n", time_ms(&tv) - \
-		time_ms(&stuff->tv_start), stuff->philo_id);
+	print(stuff, "is sleeping\n");
 	usleep(stuff->t_to_sleep * 1000);
 }
 
@@ -56,8 +49,7 @@ void	eating(t_stuff *stuff)
 	sem_wait(stuff->time_protection);
 	gettimeofday(&stuff->tv_beg, NULL);
 	sem_post(stuff->time_protection);
-	printf("%lld\t%d\tis eating\n", time_ms(&stuff->tv_beg) - \
-		time_ms(&stuff->tv_start), stuff->philo_id);
+	print(stuff, "is eating\n");
 	usleep(stuff->t_to_eat * 1000);
 	put_forks(stuff);
 	sem_wait(stuff->eat_protection);
@@ -91,7 +83,7 @@ void	run_simulation(t_stuff *stuff)
 	init_semaphores(stuff);
 	sem_wait(stuff->lock);
 	sem_post(stuff->lock);
-	init_time(stuff);
+	gettimeofday(&stuff->tv_beg, NULL);
 	if (pthread_create(&philo, NULL, start, stuff))
 	{
 		clean_sems(stuff);

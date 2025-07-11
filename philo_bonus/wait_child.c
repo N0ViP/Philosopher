@@ -6,7 +6,7 @@
 /*   By: yjaafar <yjaafar@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/11 16:21:41 by yjaafar           #+#    #+#             */
-/*   Updated: 2025/07/11 16:21:42 by yjaafar          ###   ########.fr       */
+/*   Updated: 2025/07/11 17:53:28 by yjaafar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,6 @@ void	philo_died(t_stuff *stuff, int pid)
 	i++;
 	kill_philos(stuff, stuff->number_of_philos);
 	gettimeofday(&tv, NULL);
-	gettimeofday(&stuff->tv_beg, NULL);
 	printf("%lld\t%d\tdied\n", time_ms(&tv) - \
 		time_ms(&stuff->tv_start), i);
 }

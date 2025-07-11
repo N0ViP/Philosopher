@@ -6,7 +6,7 @@
 /*   By: yjaafar <yjaafar@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/11 16:20:51 by yjaafar           #+#    #+#             */
-/*   Updated: 2025/07/11 16:20:52 by yjaafar          ###   ########.fr       */
+/*   Updated: 2025/07/11 18:02:46 by yjaafar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@ void	run_philos(t_stuff *stuff)
 	int	i;
 
 	i = 0;
+	gettimeofday(&stuff->tv_start, NULL);
 	while (i < stuff->number_of_philos)
 	{
 		if (getpid() != stuff->p_pid)
@@ -31,7 +32,6 @@ void	run_philos(t_stuff *stuff)
 		i++;
 	}
 	sem_post(stuff->lock);
-	gettimeofday(&stuff->tv_start, NULL);
 }
 
 void	allocate_philos_forks(t_stuff *stuff)

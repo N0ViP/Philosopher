@@ -8,6 +8,8 @@ OBJS	=	$(SOURCE:.c=.o)
 
 all: $(NAME)
 
+bonus: all
+
 %.o:%.c	$(INCLUDE)
 	$(CC) $(CFLAGS) -c $< -o $@
 
@@ -22,4 +24,4 @@ fclean: clean
 
 re: fclean all
 
-.PHONY:	all clean fclean re
+.PHONY:	all clean fclean re bonus
