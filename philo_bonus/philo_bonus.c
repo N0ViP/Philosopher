@@ -52,7 +52,6 @@ void	ft_usleep(t_stuff *stuff, int time)
 		gettimeofday(&tv_after, NULL);
 		if (time_ms(&tv_after) - time_ms(&tv_before) >= time)
 			break ;
-		usleep(500);
 	}
 }
 
@@ -293,7 +292,7 @@ void	*start(void *arg)
 	sem_wait(stuff->time_protection);
 	gettimeofday(&stuff->tv_beg, NULL);
 	sem_post(stuff->time_protection);
-	if (!(stuff->philo_id % 2))
+	if ((stuff->philo_id % 2))
 		ft_usleep(stuff, stuff->t_to_eat);
 	while (is_alive(stuff))
 	{
@@ -325,7 +324,7 @@ void	check_alive(t_stuff *stuff, pthread_t philo)
 	if (time_ms(&tv) - time >= stuff->t_to_die)
 	{
 		jon_philo(stuff, philo);
-		exit (EXIT_FAILURE);
+		exit(EXIT_FAILURE);
 	}
 }
 
@@ -349,7 +348,6 @@ void	monitor(t_stuff *stuff, pthread_t philo)
 	{
 		check_alive(stuff, philo);
 		check_eat(stuff, philo);
-		usleep(100);
 	}
 }
 
