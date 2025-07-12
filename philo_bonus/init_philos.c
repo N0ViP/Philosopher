@@ -6,7 +6,7 @@
 /*   By: yjaafar <yjaafar@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/11 16:20:51 by yjaafar           #+#    #+#             */
-/*   Updated: 2025/07/12 10:07:28 by yjaafar          ###   ########.fr       */
+/*   Updated: 2025/07/12 18:28:15 by yjaafar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,13 +22,14 @@ void	run_philos(t_stuff *stuff)
 	{
 		stuff->philo_id = i + 1;
 		stuff->philos[i] = fork();
-		if (stuff->philos[i] != 0)
+		if (stuff->philos[i] == 0)
 		{
 			run_simulation(stuff);
 		}
 		if (stuff->philos[i] == -1)
 		{
 			kill_philos(stuff, i);
+			clean_up(stuff);
 			exit(EXIT_FAILURE);
 		}
 		i++;

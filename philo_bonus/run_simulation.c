@@ -6,7 +6,7 @@
 /*   By: yjaafar <yjaafar@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/11 16:21:23 by yjaafar           #+#    #+#             */
-/*   Updated: 2025/07/11 18:04:13 by yjaafar          ###   ########.fr       */
+/*   Updated: 2025/07/12 18:28:25 by yjaafar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,9 +62,6 @@ void	*start(void *arg)
 	t_stuff	*stuff;
 
 	stuff = (t_stuff *) arg;
-	sem_wait(stuff->time_protection);
-	gettimeofday(&stuff->tv_beg, NULL);
-	sem_post(stuff->time_protection);
 	if (!(stuff->philo_id % 2))
 		usleep(stuff->t_to_eat * 1000);
 	while (is_alive(stuff))
@@ -81,9 +78,9 @@ void	run_simulation(t_stuff *stuff)
 	pthread_t	philo;
 
 	init_semaphores(stuff);
+	stuff->tv_beg = stuff->tv_start;
 	sem_wait(stuff->lock);
 	sem_post(stuff->lock);
-	gettimeofday(&stuff->tv_beg, NULL);
 	if (pthread_create(&philo, NULL, start, stuff))
 	{
 		clean_sems(stuff);
