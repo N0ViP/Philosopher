@@ -1,7 +1,8 @@
 CC		=	cc
-CFLAGS	=	-Wall -Wextra -Werror -g
+CFLAGS	=	-Wall -Wextra -Werror
 SOURCE	=	monitor.c philo.c run_simulation.c utils_1.c utils_2.c utils_3.c
 NAME	=	philo
+INCLUDE	=	philo.h
 OBJS	=	$(SOURCE:.c=.o)
 
 all: $(NAME)

@@ -6,11 +6,18 @@
 /*   By: yjaafar <yjaafar@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/14 08:28:53 by yjaafar           #+#    #+#             */
-/*   Updated: 2025/05/16 21:49:11 by yjaafar          ###   ########.fr       */
+/*   Updated: 2025/07/12 17:53:22 by yjaafar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
+
+static void	clean_up(t_stuff *stuff, t_philo *philos)
+{
+	free(stuff->philos);
+	free(stuff->forks);
+	free(philos);
+}
 
 static bool	allocate_stuff(t_stuff *stuff, t_philo **philos)
 {
@@ -19,16 +26,12 @@ static bool	allocate_stuff(t_stuff *stuff, t_philo **philos)
 	*philos = malloc(sizeof(t_philo) * stuff->number_of_philos);
 	if (!stuff->philos || !stuff->forks || !*philos)
 	{
-		free(stuff->philos);
-		free(stuff->forks);
-		free(*philos);
+		clean_up(stuff, *philos);
 		return (false);
 	}
 	if (pthread_mutex_init(&stuff->lock, NULL))
 	{
-		free(stuff->philos);
-		free(stuff->forks);
-		free(*philos);
+		clean_up(stuff, *philos);
 		return (false);
 	}
 	pthread_mutex_lock(&stuff->lock);
@@ -48,9 +51,8 @@ static bool	create_philos(t_philo *philos)
 		{
 			pthread_mutex_unlock(&stuff->lock);
 			kill_philos(philos, i);
-			free(philos);
-			free(stuff->philos);
-			free(stuff->forks);
+			join_philos(philos, i);
+			clean_up(stuff, philos);
 			return (false);
 		}
 		i++;
@@ -65,16 +67,14 @@ static bool	alloc_philos(t_stuff *stuff)
 
 	if (!allocate_stuff(stuff, &philos))
 		return (false);
-	gettimeofday(&stuff->tv_start, NULL);
 	if (!init_philo(philos, stuff))
 		return (false);
 	if (!create_philos(philos))
 		return (false);
+	gettimeofday(&stuff->tv_start, NULL);
 	pthread_mutex_unlock(&stuff->lock);
 	reval = monitoring(philos);
-	free(philos);
-	free(stuff->philos);
-	free(stuff->forks);
+	clean_up(stuff, philos);
 	return (reval);
 }
 

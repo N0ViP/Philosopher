@@ -6,7 +6,7 @@
 /*   By: yjaafar <yjaafar@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/16 21:53:36 by yjaafar           #+#    #+#             */
-/*   Updated: 2025/07/11 17:42:21 by yjaafar          ###   ########.fr       */
+/*   Updated: 2025/07/12 17:10:31 by yjaafar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,13 +64,13 @@ void	*run_simulation(void *arg)
 	t_philo			*philo;
 
 	philo = (t_philo *) arg;
+	if (!(philo->first_fork % 2))
+		usleep(philo->stuff->t_to_eat * 1000);
 	pthread_mutex_lock(&philo->stuff->lock);
 	pthread_mutex_unlock(&philo->stuff->lock);
 	pthread_mutex_lock(&philo->time_protection);
-	gettimeofday(&philo->tv_beg, NULL);
+	philo->tv_beg = philo->stuff->tv_start;
 	pthread_mutex_unlock(&philo->time_protection);
-	if (!(philo->first_fork % 2))
-		usleep(philo->stuff->t_to_eat * 1000);
 	while (is_alive(philo))
 	{
 		thinking(philo);
