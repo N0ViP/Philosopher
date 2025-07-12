@@ -6,7 +6,7 @@
 /*   By: yjaafar <yjaafar@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/11 16:20:51 by yjaafar           #+#    #+#             */
-/*   Updated: 2025/07/11 18:02:46 by yjaafar          ###   ########.fr       */
+/*   Updated: 2025/07/12 10:07:28 by yjaafar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,10 +20,12 @@ void	run_philos(t_stuff *stuff)
 	gettimeofday(&stuff->tv_start, NULL);
 	while (i < stuff->number_of_philos)
 	{
-		if (getpid() != stuff->p_pid)
-			return ;
 		stuff->philo_id = i + 1;
 		stuff->philos[i] = fork();
+		if (stuff->philos[i] != 0)
+		{
+			run_simulation(stuff);
+		}
 		if (stuff->philos[i] == -1)
 		{
 			kill_philos(stuff, i);
@@ -32,15 +34,15 @@ void	run_philos(t_stuff *stuff)
 		i++;
 	}
 	sem_post(stuff->lock);
+	wait_child(stuff);
 }
 
 void	allocate_philos_forks(t_stuff *stuff)
 {
-	stuff->p_pid = getpid();
 	stuff->philos = malloc (sizeof(pid_t) * stuff->number_of_philos);
 	if (!stuff->philos)
 	{
-		exit (EXIT_FAILURE);
+		exit(EXIT_FAILURE);
 	}
 	sem_unlink("/forks");
 	sem_unlink("/lock");
@@ -57,8 +59,4 @@ void	init_philos(t_stuff *stuff)
 {
 	allocate_philos_forks(stuff);
 	run_philos(stuff);
-	if (stuff->p_pid != getpid())
-		run_simulation(stuff);
-	else
-		wait_child(stuff);
 }

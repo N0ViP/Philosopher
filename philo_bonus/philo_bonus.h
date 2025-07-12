@@ -6,7 +6,7 @@
 /*   By: yjaafar <yjaafar@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/11 16:21:19 by yjaafar           #+#    #+#             */
-/*   Updated: 2025/07/11 18:04:08 by yjaafar          ###   ########.fr       */
+/*   Updated: 2025/07/12 09:55:32 by yjaafar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,13 +35,12 @@ typedef struct s_stuff
 	sem_t			*eat_protection;
 	sem_t			*lock;
 	pid_t			*philos;
-	pid_t			philo_id;
-	pid_t			p_pid;
 	char			*alive_protection_name;
 	char			*time_protection_name;
 	char			*eat_protection_name;
 	bool			alive;
 	int				n_eat;
+	int				philo_id;
 	int				number_of_philos;
 	int				t_to_die;
 	int				t_to_eat;
