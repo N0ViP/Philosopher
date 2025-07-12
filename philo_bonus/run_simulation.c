@@ -6,7 +6,7 @@
 /*   By: yjaafar <yjaafar@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/11 16:21:23 by yjaafar           #+#    #+#             */
-/*   Updated: 2025/07/12 18:28:25 by yjaafar          ###   ########.fr       */
+/*   Updated: 2025/07/12 18:44:31 by yjaafar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,9 +78,10 @@ void	run_simulation(t_stuff *stuff)
 	pthread_t	philo;
 
 	init_semaphores(stuff);
-	stuff->tv_beg = stuff->tv_start;
 	sem_wait(stuff->lock);
 	sem_post(stuff->lock);
+	gettimeofday(&stuff->tv_start, NULL);
+	stuff->tv_beg = stuff->tv_start;
 	if (pthread_create(&philo, NULL, start, stuff))
 	{
 		clean_sems(stuff);
