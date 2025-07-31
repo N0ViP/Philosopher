@@ -6,7 +6,7 @@
 /*   By: yjaafar <yjaafar@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/11 16:21:19 by yjaafar           #+#    #+#             */
-/*   Updated: 2025/07/12 18:33:48 by yjaafar          ###   ########.fr       */
+/*   Updated: 2025/07/31 17:01:16 by yjaafar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,7 @@ typedef struct s_stuff
 	int				number_of_philos;
 	int				t_to_die;
 	int				t_to_eat;
+	int				t_to_think;
 	int				t_to_sleep;
 	int				must_eat;
 }	t_stuff;

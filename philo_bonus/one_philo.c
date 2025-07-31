@@ -6,7 +6,7 @@
 /*   By: yjaafar <yjaafar@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/11 16:21:00 by yjaafar           #+#    #+#             */
-/*   Updated: 2025/07/11 16:21:01 by yjaafar          ###   ########.fr       */
+/*   Updated: 2025/07/31 17:05:33 by yjaafar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ void	one_philo(int t_to_die)
 	sem_t	*sem;
 	int		ex_status;
 
-	unlink("/forks");
+	sem_unlink("/forks");
 	sem = sem_open("/forks", O_CREAT, 0777, 1);
 	pid = fork();
 	if (pid == 0)
@@ -34,7 +34,7 @@ void	one_philo(int t_to_die)
 	{
 		waitpid(pid, &ex_status, 0);
 		sem_close(sem);
-		unlink("/forks");
+		sem_unlink("/forks");
 	}
 	exit(EXIT_SUCCESS);
 }

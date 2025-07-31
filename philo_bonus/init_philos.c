@@ -6,7 +6,7 @@
 /*   By: yjaafar <yjaafar@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/11 16:20:51 by yjaafar           #+#    #+#             */
-/*   Updated: 2025/07/12 18:43:18 by yjaafar          ###   ########.fr       */
+/*   Updated: 2025/07/31 17:02:12 by yjaafar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,15 @@ void	allocate_philos_forks(t_stuff *stuff)
 
 void	init_philos(t_stuff *stuff)
 {
+	int	t_to_eat_sleep;
+
+	stuff->t_to_think = ft_abs(stuff->t_to_eat - stuff->t_to_sleep) + 10;
+	t_to_eat_sleep = stuff->t_to_eat + stuff->t_to_sleep;
+	if (t_to_eat_sleep < stuff->t_to_die)
+	{
+		while (stuff->t_to_think + t_to_eat_sleep >= stuff->t_to_die)
+			stuff->t_to_think /= 2;
+	}
 	allocate_philos_forks(stuff);
 	run_philos(stuff);
 }
