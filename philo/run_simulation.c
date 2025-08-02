@@ -6,7 +6,7 @@
 /*   By: yjaafar <yjaafar@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/16 21:53:36 by yjaafar           #+#    #+#             */
-/*   Updated: 2025/07/12 17:10:31 by yjaafar          ###   ########.fr       */
+/*   Updated: 2025/07/31 16:57:24 by yjaafar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,20 +14,10 @@
 
 void	thinking(t_philo *philo)
 {
-	int				time;
-	int				t_to_eat_sleep;
-
 	if (!is_alive(philo))
 		return ;
 	print(philo, "is thinking\n");
-	time = ft_abs(philo->stuff->t_to_eat - philo->stuff->t_to_sleep) + 10;
-	t_to_eat_sleep = philo->stuff->t_to_eat + philo->stuff->t_to_sleep;
-	if (t_to_eat_sleep < philo->stuff->t_to_die)
-	{
-		while (time + t_to_eat_sleep >= philo->stuff->t_to_die)
-			time /= 2;
-	}
-	usleep(time * 1000);
+	usleep(philo->stuff->t_to_think * 1000);
 }
 
 void	sleeping(t_philo *philo)

@@ -6,7 +6,7 @@
 /*   By: yjaafar <yjaafar@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/16 21:47:04 by yjaafar           #+#    #+#             */
-/*   Updated: 2025/07/12 17:45:33 by yjaafar          ###   ########.fr       */
+/*   Updated: 2025/07/31 16:55:24 by yjaafar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,8 @@ bool	check_philos(t_philo *philos, int i)
 	if (time && time_ms(&tv) - time >= t_to_die)
 	{
 		kill_philos(philos, philos[i].stuff->number_of_philos);
-		join_philos(philos, philos[i].stuff->number_of_philos);
 		print(&philos[i], "died\n");
+		join_philos(philos, philos[i].stuff->number_of_philos);
 		return (false);
 	}
 	return (true);

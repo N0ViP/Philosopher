@@ -6,7 +6,7 @@
 /*   By: yjaafar <yjaafar@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/14 08:28:53 by yjaafar           #+#    #+#             */
-/*   Updated: 2025/07/12 17:53:22 by yjaafar          ###   ########.fr       */
+/*   Updated: 2025/07/31 16:59:21 by yjaafar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,9 +62,17 @@ static bool	create_philos(t_philo *philos)
 
 static bool	alloc_philos(t_stuff *stuff)
 {
-	t_philo			*philos;
-	bool			reval;
+	t_philo	*philos;
+	int		t_to_eat_sleep;
+	bool	reval;
 
+	stuff->t_to_think = ft_abs(stuff->t_to_eat - stuff->t_to_sleep) + 10;
+	t_to_eat_sleep = stuff->t_to_eat + stuff->t_to_sleep;
+	if (t_to_eat_sleep < stuff->t_to_die)
+	{
+		while (stuff->t_to_think + t_to_eat_sleep >= stuff->t_to_die)
+			stuff->t_to_think /= 2;
+	}
 	if (!allocate_stuff(stuff, &philos))
 		return (false);
 	if (!init_philo(philos, stuff))
