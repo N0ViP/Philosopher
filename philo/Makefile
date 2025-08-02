@@ -1,4 +1,4 @@
-CC		=	gcc
+CC		=	cc
 CFLAGS	=	-Wall -Wextra -Werror
 SOURCE	=	monitor.c philo.c run_simulation.c utils_1.c utils_2.c utils_3.c
 NAME	=	philo
