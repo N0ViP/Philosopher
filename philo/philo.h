@@ -6,7 +6,7 @@
 /*   By: yjaafar <yjaafar@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/14 08:29:06 by yjaafar           #+#    #+#             */
-/*   Updated: 2025/07/31 16:56:37 by yjaafar          ###   ########.fr       */
+/*   Updated: 2025/08/02 19:40:08 by yjaafar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 # include <pthread.h>
 # include <stdbool.h>
 # include <sys/time.h>
+# include <stddef.h>
 
 typedef struct s_stuff
 {
