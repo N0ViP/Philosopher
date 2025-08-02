@@ -6,7 +6,7 @@
 /*   By: yjaafar <yjaafar@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/14 08:28:53 by yjaafar           #+#    #+#             */
-/*   Updated: 2025/07/31 16:59:21 by yjaafar          ###   ########.fr       */
+/*   Updated: 2025/08/02 05:37:50 by yjaafar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,7 +107,7 @@ int	main(int ac, char *av[])
 	{
 		stuff.must_eat = ft_atoi(av[5]);
 		if (stuff.must_eat <= 0)
-			return (0);
+			return (write(2, "Invalid arguments!\n", 19), 1);
 	}
 	if (stuff.number_of_philos == 1)
 		return (!one_philo(&stuff));
